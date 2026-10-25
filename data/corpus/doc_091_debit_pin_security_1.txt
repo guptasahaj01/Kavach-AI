@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-091
+TOPIC: Debit Card Security, Green PIN Generation, and ATM Safety
+CATEGORY: DEBIT_PIN_SECURITY
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is a Green PIN and how is it generated?
+
+ANSWER:
+A Green PIN is an eco-friendly, paperless mechanism for generating or resetting debit card PINs via bank ATMs, internet banking, mobile applications, or IVR systems using an OTP sent to the registered mobile number.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

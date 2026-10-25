@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-076
+TOPIC: Savings Account Minimum Average Balance (MAB) and Service Charges
+CATEGORY: SAVINGS_MAB
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are the free cash withdrawal limits at own-bank ATMs?
+
+ANSWER:
+Under RBI mandates, banks must provide account holders with a minimum of 5 free financial and non-financial transactions per month at their own-bank ATMs in all geographic locations.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

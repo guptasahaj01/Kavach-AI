@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-003
+TOPIC: Unified Payments Interface (UPI) Limits and Guidelines
+CATEGORY: UPI_LIMITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How does UPI Autopay work and what are the mandate limits?
+
+ANSWER:
+UPI Autopay enables recurring payments for OTT subscriptions, mutual fund SIPs, and utility bills. For recurring transactions up to Rs. 15,000, no second-factor authentication (UPI PIN) is required after initial setup. Above Rs. 15,000, an explicit OTP/PIN approval is required.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

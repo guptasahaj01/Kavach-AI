@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-008
+TOPIC: Unified Payments Interface (UPI) Limits and Guidelines
+CATEGORY: UPI_LIMITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the procedure for disputing an unauthorized UPI transaction?
+
+ANSWER:
+Customers must notify their bank within 3 working days of receiving unauthorized transaction alerts. Reporting within 3 days limits customer liability to zero under the RBI Charter of Customer Rights.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

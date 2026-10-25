@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-028
+TOPIC: Real Time Gross Settlement (RTGS) Protocols
+CATEGORY: RTGS_TRANSACTIONS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the maximum liability if RTGS fails to credit on time?
+
+ANSWER:
+If a beneficiary bank delays credit beyond 30 minutes without valid cause, it is liable to pay interest to the beneficiary at RBI repo rate plus 2% for the period of delay.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

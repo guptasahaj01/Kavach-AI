@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-042
+TOPIC: Aadhaar e-KYC and PAN Seeding Compliance
+CATEGORY: AADHAAR_KYC
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is biometric Aadhaar e-KYC in retail banking?
+
+ANSWER:
+Aadhaar e-KYC is an electronic, paperless Know Your Customer process where customer identity and address are authenticated instantly via biometric fingerprint or iris scan against UIDAI central servers.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

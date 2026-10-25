@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-014
+TOPIC: National Electronic Funds Transfer (NEFT) Rules
+CATEGORY: NEFT_TRANSFERS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the beneficiary activation cooling period for NEFT?
+
+ANSWER:
+Upon adding a new NEFT beneficiary online, a cooling period of 30 minutes to 4 hours (varying by bank) is enforced. During the initial 24 hours following activation, transfers to the newly added beneficiary are capped (typically at Rs. 50,000).
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-071
+TOPIC: Savings Account Minimum Average Balance (MAB) and Service Charges
+CATEGORY: SAVINGS_MAB
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How is Monthly or Quarterly Average Balance (MAB/QAB) calculated?
+
+ANSWER:
+MAB is computed by summing the end-of-day balances for each day of the calendar month and dividing the total sum by the exact number of calendar days in that month.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

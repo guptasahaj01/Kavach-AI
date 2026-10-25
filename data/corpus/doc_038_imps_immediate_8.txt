@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-038
+TOPIC: Immediate Payment Service (IMPS) Rules
+CATEGORY: IMPS_IMMEDIATE
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Can IMPS be used to pay credit card bills?
+
+ANSWER:
+Yes, several banks support IMPS for credit card bill payments using the cardholder's 16-digit card number as the identifier under the merchant IMPS protocol.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

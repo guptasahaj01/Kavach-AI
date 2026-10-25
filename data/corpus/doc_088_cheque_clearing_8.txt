@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-088
+TOPIC: Cheque Truncation System (CTS-2010) and Section 138 NI Act Rules
+CATEGORY: CHEQUE_CLEARING
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the validity period of a bank cheque in India?
+
+ANSWER:
+Under RBI circular DBOD.AML.BC.No.47/14.01.001/2011-12, cheques, drafts, pay orders, and banker's cheques are valid for payment for 3 months from the date of issue.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

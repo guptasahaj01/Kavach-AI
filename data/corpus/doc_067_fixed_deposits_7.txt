@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-067
+TOPIC: Fixed Deposit (FD) Tenures, Premature Withdrawal, and Tax Rules
+CATEGORY: FIXED_DEPOSITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What deposit insurance coverage protects bank Fixed Deposits?
+
+ANSWER:
+Deposits across all branches of a licensed bank are insured by the Deposit Insurance and Credit Guarantee Corporation (DICGC)—an RBI subsidiary—up to a maximum aggregate limit of Rs. 5,00,000 per depositor for both principal and interest.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

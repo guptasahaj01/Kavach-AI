@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-062
+TOPIC: Fixed Deposit (FD) Tenures, Premature Withdrawal, and Tax Rules
+CATEGORY: FIXED_DEPOSITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the additional interest rate provided to Senior Citizens?
+
+ANSWER:
+Resident senior citizens (aged 60 years and above) receive an additional interest rate premium of 0.50% (50 basis points) on domestic term deposits. Select banks offer super-senior citizen rates (80 years+) with an extra 25 bps.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

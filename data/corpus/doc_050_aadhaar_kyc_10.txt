@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-050
+TOPIC: Aadhaar e-KYC and PAN Seeding Compliance
+CATEGORY: AADHAAR_KYC
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Can a customer update their residential address online via Aadhaar OTP?
+
+ANSWER:
+Yes, if the customer's updated address is recorded in UIDAI databases, they can update their bank record digitally via Aadhaar OTP authentication without visiting a physical branch.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

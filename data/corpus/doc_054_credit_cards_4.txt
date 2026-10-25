@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-054
+TOPIC: Credit Card Regulations, Tokenization, and Dispute Guidelines
+CATEGORY: CREDIT_CARDS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are the RBI rules on unsolicited credit card issuance?
+
+ANSWER:
+Under RBI Master Direction on Credit and Debit Cards (2022), if an unsolicited card is issued and activated without written consent, the issuer must immediately cancel the card and pay a penalty equal to twice the billed amount.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

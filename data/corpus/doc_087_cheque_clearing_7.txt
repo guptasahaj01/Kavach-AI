@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-087
+TOPIC: Cheque Truncation System (CTS-2010) and Section 138 NI Act Rules
+CATEGORY: CHEQUE_CLEARING
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are common return reason codes in cheque clearance?
+
+ANSWER:
+Common return reasons include Code 01 (Funds Insufficient), Code 02 (Exceeds Arrangement), Code 03 (Signature Differs), Code 04 (Stop Payment by Drawer), and Code 05 (Post-dated or Stale Cheque).
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

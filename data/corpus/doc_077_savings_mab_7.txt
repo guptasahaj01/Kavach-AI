@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-077
+TOPIC: Savings Account Minimum Average Balance (MAB) and Service Charges
+CATEGORY: SAVINGS_MAB
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are the free ATM limits at other bank ATMs?
+
+ANSWER:
+Customers are entitled to 3 free transactions per month at other bank ATMs in 6 metro cities (Mumbai, Delhi, Chennai, Kolkata, Bengaluru, Hyderabad) and 5 free transactions per month in non-metro locations.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-064
+TOPIC: Fixed Deposit (FD) Tenures, Premature Withdrawal, and Tax Rules
+CATEGORY: FIXED_DEPOSITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are Form 15G and Form 15H used for?
+
+ANSWER:
+Form 15G (for individuals under 60) and Form 15H (for senior citizens aged 60+) are self-declarations submitted at the start of each financial year to request non-deduction of TDS if total estimated annual income is below taxable limits.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-035
+TOPIC: Immediate Payment Service (IMPS) Rules
+CATEGORY: IMPS_IMMEDIATE
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the UTR format and length in IMPS transfers?
+
+ANSWER:
+An IMPS reference number consists of a 12-digit numeric Retrieval Reference Number (RRN) that identifies the transaction uniquely across sender, switch, and receiver systems.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

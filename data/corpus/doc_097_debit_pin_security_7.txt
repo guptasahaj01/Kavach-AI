@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-097
+TOPIC: Debit Card Security, Green PIN Generation, and ATM Safety
+CATEGORY: DEBIT_PIN_SECURITY
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the difference between Chip-and-PIN (EMV) and Magstripe cards?
+
+ANSWER:
+EMV chip cards store encrypted account data on a microchip and require PIN validation, preventing card cloning and skimming attacks common on outdated magnetic stripe cards.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

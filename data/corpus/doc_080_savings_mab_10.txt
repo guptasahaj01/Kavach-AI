@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-080
+TOPIC: Savings Account Minimum Average Balance (MAB) and Service Charges
+CATEGORY: SAVINGS_MAB
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Can banks charge fees for activating inoperative or dormant accounts?
+
+ANSWER:
+No. RBI Master Directions prohibit banks from levying any activation charges, penal fees, or administrative levies for reactivating dormant or inoperative accounts upon submission of fresh KYC documents.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-013
+TOPIC: National Electronic Funds Transfer (NEFT) Rules
+CATEGORY: NEFT_TRANSFERS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Are there any charges for retail NEFT transactions?
+
+ANSWER:
+In accordance with RBI circular DPSS.CO.PPD.No.1242/04.03.01/2019-20, banks cannot levy any charges on retail savings bank account holders for outward NEFT transfers initiated online through digital channels (internet banking, mobile apps).
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

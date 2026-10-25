@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-066
+TOPIC: Fixed Deposit (FD) Tenures, Premature Withdrawal, and Tax Rules
+CATEGORY: FIXED_DEPOSITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How does quarterly compounding work on cumulative Fixed Deposits?
+
+ANSWER:
+On cumulative fixed deposits, interest is compounded on a quarterly basis and reinvested with the principal. The accrued interest and initial principal are paid out simultaneously on deposit maturity.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

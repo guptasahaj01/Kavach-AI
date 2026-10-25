@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-075
+TOPIC: Savings Account Minimum Average Balance (MAB) and Service Charges
+CATEGORY: SAVINGS_MAB
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Are banks required to notify customers prior to levying MAB penalties?
+
+ANSWER:
+Yes. Banks must notify customers via SMS, email, or letter when their balance falls below the stipulated threshold and provide a grace period of one month to replenish funds before applying penalties.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

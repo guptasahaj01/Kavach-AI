@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-069
+TOPIC: Fixed Deposit (FD) Tenures, Premature Withdrawal, and Tax Rules
+CATEGORY: FIXED_DEPOSITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What happens to an FD upon maturity if no renewal instructions exist?
+
+ANSWER:
+If neither auto-renewal nor liquidation instructions exist, matured deposits are either auto-renewed for an identical tenure at prevailing interest rates or transferred to an overdue deposit account earning savings bank interest.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

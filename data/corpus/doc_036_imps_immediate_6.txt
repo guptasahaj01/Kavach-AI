@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-036
+TOPIC: Immediate Payment Service (IMPS) Rules
+CATEGORY: IMPS_IMMEDIATE
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Is IMPS available 24x7 including national holidays?
+
+ANSWER:
+Yes, IMPS is designed as an instant electronic fund transfer service operating round-the-clock, 365 days a year, with instantaneous interbank settlement.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

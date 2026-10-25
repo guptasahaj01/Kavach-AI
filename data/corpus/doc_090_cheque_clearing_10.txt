@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-090
+TOPIC: Cheque Truncation System (CTS-2010) and Section 138 NI Act Rules
+CATEGORY: CHEQUE_CLEARING
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Are cheque bounce charges levied on both drawer and payee?
+
+ANSWER:
+Cheque return charges are levied on the drawer for issuing an unfunded cheque. Some banks also charge the depositing customer (payee) a nominal return handling fee.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

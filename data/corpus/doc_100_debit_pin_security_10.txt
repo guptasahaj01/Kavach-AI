@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-100
+TOPIC: Debit Card Security, Green PIN Generation, and ATM Safety
+CATEGORY: DEBIT_PIN_SECURITY
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Can an expired debit card continue to be used for recurring UPI transactions?
+
+ANSWER:
+No. Once a debit card expires, active UPI mandates linked to that specific debit card require re-authentication with new card credentials, though existing bank-account linked UPI VPAs remain unaffected.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

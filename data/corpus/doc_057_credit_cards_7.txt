@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-057
+TOPIC: Credit Card Regulations, Tokenization, and Dispute Guidelines
+CATEGORY: CREDIT_CARDS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How should a disputed credit card transaction be reported?
+
+ANSWER:
+Cardholders must lodge a chargeback dispute through the issuer's portal within 60 days of the statement date. The card issuer must acknowledge the complaint within 48 hours and investigate with the merchant acquiring bank.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

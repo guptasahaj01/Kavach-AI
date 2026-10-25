@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-096
+TOPIC: Debit Card Security, Green PIN Generation, and ATM Safety
+CATEGORY: DEBIT_PIN_SECURITY
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What should a customer do if an ATM fails to dispense cash but debits the account?
+
+ANSWER:
+The customer should file a complaint quoting the ATM ID, transaction slip, and date/time. Under RBI TAT rules, the bank must auto-reverse the debited amount within T+5 business days, failing which it owes Rs. 100/day compensation.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

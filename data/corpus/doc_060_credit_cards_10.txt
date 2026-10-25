@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-060
+TOPIC: Credit Card Regulations, Tokenization, and Dispute Guidelines
+CATEGORY: CREDIT_CARDS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the closure procedure for an unwanted credit card?
+
+ANSWER:
+Card issuers must honor credit card closure requests within 7 working days, subject to full settlement of outstanding dues. Failure to close within 7 days results in a penalty of Rs. 500 per day of delay payable to the customer.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

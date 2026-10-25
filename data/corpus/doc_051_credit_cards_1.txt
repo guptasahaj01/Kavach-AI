@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-051
+TOPIC: Credit Card Regulations, Tokenization, and Dispute Guidelines
+CATEGORY: CREDIT_CARDS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is Card-on-File (CoF) tokenization mandated by RBI?
+
+ANSWER:
+RBI mandates that merchants cannot store actual 16-digit card numbers, CVVs, or expiry dates on their servers. Instead, a device-specific surrogate token is generated to safeguard online payments against data breaches.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-055
+TOPIC: Credit Card Regulations, Tokenization, and Dispute Guidelines
+CATEGORY: CREDIT_CARDS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How can a cardholder disable international and contactless transactions?
+
+ANSWER:
+RBI regulations require card issuers to provide 24x7 controls via mobile apps and internet banking allowing cardholders to switch on/off international, domestic, ATM, online, and contactless (NFC) transaction channels dynamically.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

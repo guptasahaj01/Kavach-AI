@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-040
+TOPIC: Immediate Payment Service (IMPS) Rules
+CATEGORY: IMPS_IMMEDIATE
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the difference between IMPS and UPI?
+
+ANSWER:
+IMPS is the underlying interbank settlement rail operated by NPCI. UPI is a modernized abstraction layer built on top of IMPS that utilizes Virtual Payment Addresses (VPA) and frictionless smartphone authentication.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

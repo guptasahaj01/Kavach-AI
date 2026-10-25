@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-047
+TOPIC: Aadhaar e-KYC and PAN Seeding Compliance
+CATEGORY: AADHAAR_KYC
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is a Central KYC Registry (CKYCR) identifier?
+
+ANSWER:
+CKYC is an initiative of the Government of India managed by CERSAI to create a centralized registry of financial customers. A 14-digit KIN (KYC Identification Number) is issued, eliminating the need to undergo KYC verification repeatedly across different financial institutions.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

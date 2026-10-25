@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-094
+TOPIC: Debit Card Security, Green PIN Generation, and ATM Safety
+CATEGORY: DEBIT_PIN_SECURITY
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How does dynamic transaction toggling work for debit cards?
+
+ANSWER:
+Cardholders can independently enable or disable specific transaction channels (ATM cash withdrawal, POS swipe, E-commerce online, and International usage) and define sub-limits instantly via mobile banking apps.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

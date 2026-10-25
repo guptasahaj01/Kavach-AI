@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-024
+TOPIC: Real Time Gross Settlement (RTGS) Protocols
+CATEGORY: RTGS_TRANSACTIONS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the expected settlement time for RTGS recipient credit?
+
+ANSWER:
+Under RBI guidelines, the beneficiary bank must credit the funds to the recipient's account within 30 minutes of receiving the transfer message from the RBI RTGS central gateway.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

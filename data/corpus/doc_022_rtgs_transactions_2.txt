@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-022
+TOPIC: Real Time Gross Settlement (RTGS) Protocols
+CATEGORY: RTGS_TRANSACTIONS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How does RTGS differ fundamentally from NEFT?
+
+ANSWER:
+RTGS settles transactions continuously and individually on an order-by-order gross basis in the books of the Reserve Bank of India, whereas NEFT settles transactions on a Deferred Net Settlement (DNS) basis in 30-minute intervals.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

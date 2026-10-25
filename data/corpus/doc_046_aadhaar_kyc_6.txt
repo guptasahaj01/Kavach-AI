@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-046
+TOPIC: Aadhaar e-KYC and PAN Seeding Compliance
+CATEGORY: AADHAAR_KYC
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Can Non-Face-to-Face Video KYC (V-CIP) be completed from abroad?
+
+ANSWER:
+RBI guidelines require that Video-based Customer Identification Process (V-CIP) must verify that the customer's live geolocation is within the territorial borders of India. NRIs opening accounts from abroad must use consular attestation or embassy channels.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

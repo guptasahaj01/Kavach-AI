@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-079
+TOPIC: Savings Account Minimum Average Balance (MAB) and Service Charges
+CATEGORY: SAVINGS_MAB
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How are dormant and inoperative accounts classified?
+
+ANSWER:
+A savings or current account is classified as inoperative or dormant if there are no customer-induced transactions (debit or credit) for a continuous period exceeding 2 years.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

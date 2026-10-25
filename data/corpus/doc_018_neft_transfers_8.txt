@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-018
+TOPIC: National Electronic Funds Transfer (NEFT) Rules
+CATEGORY: NEFT_TRANSFERS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Is Positive Pay required for NEFT transactions?
+
+ANSWER:
+No, the Positive Pay System is strictly mandated for cheque clearance and does not apply to electronic fund transfer mechanisms like NEFT or RTGS.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

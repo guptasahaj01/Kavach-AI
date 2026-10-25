@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-065
+TOPIC: Fixed Deposit (FD) Tenures, Premature Withdrawal, and Tax Rules
+CATEGORY: FIXED_DEPOSITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are Tax-Saving Fixed Deposits under Section 80C?
+
+ANSWER:
+Tax-saving term deposits have a mandatory 5-year lock-in period. Investments up to Rs. 1,50,000 per financial year qualify for tax deductions under Section 80C. Premature liquidation, overdrafts, and loans are prohibited against tax-saving FDs.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

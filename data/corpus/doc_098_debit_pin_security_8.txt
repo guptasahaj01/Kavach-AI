@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-098
+TOPIC: Debit Card Security, Green PIN Generation, and ATM Safety
+CATEGORY: DEBIT_PIN_SECURITY
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are the zero-liability conditions for debit card unauthorized transactions?
+
+ANSWER:
+Under RBI circular DBR.No.Leg.BC.78/09.07.005/2017-18, the customer incurs zero liability if fraudulent transactions arise from bank negligence, or if third-party fraud is reported to the bank within 3 working days.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

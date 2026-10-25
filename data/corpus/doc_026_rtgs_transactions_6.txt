@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-026
+TOPIC: Real Time Gross Settlement (RTGS) Protocols
+CATEGORY: RTGS_TRANSACTIONS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Can an RTGS transaction be cancelled after authorization?
+
+ANSWER:
+No. Since RTGS processes remittances in real-time gross mode, once an order is submitted to the clearing system, it is irrevocable and final.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

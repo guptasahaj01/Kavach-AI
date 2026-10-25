@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-039
+TOPIC: Immediate Payment Service (IMPS) Rules
+CATEGORY: IMPS_IMMEDIATE
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What precautions should be taken to prevent IMPS fraud?
+
+ANSWER:
+Customers should verify recipient details via penny-drop validation before transferring, never share MPIN or OTPs, and monitor SMS transaction alerts immediately.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

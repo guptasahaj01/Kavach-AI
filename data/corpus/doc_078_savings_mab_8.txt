@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-078
+TOPIC: Savings Account Minimum Average Balance (MAB) and Service Charges
+CATEGORY: SAVINGS_MAB
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the cap on financial ATM transaction charges after exhausting free limits?
+
+ANSWER:
+After exhausting the statutory free ATM transaction limit, banks may charge a maximum fee of Rs. 21 plus applicable GST per financial transaction.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-070
+TOPIC: Fixed Deposit (FD) Tenures, Premature Withdrawal, and Tax Rules
+CATEGORY: FIXED_DEPOSITS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: Can Fixed Deposits be opened jointly with an 'Either or Survivor' mandate?
+
+ANSWER:
+Yes. Under an 'Either or Survivor' mandate, either of the account holders can operate the account, draw periodic interest, or liquidate the deposit on maturity. In the event of death of one depositor, the survivor retains sole ownership.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

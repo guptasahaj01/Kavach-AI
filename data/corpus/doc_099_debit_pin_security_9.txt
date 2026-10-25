@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-099
+TOPIC: Debit Card Security, Green PIN Generation, and ATM Safety
+CATEGORY: DEBIT_PIN_SECURITY
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How does the card tokenization mandate protect e-commerce debit card transactions?
+
+ANSWER:
+Tokenization replaces the card's 16-digit primary account number (PAN) with a unique algorithmic token tied to a specific merchant, ensuring card credentials cannot be stolen during merchant database leaks.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

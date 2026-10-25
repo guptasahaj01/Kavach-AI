@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-082
+TOPIC: Cheque Truncation System (CTS-2010) and Section 138 NI Act Rules
+CATEGORY: CHEQUE_CLEARING
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the Positive Pay System (PPS) for high-value cheques?
+
+ANSWER:
+Under RBI Positive Pay System guidelines, account holders issuing cheques valued above Rs. 50,000 (and mandatorily above Rs. 5,00,000) must pre-notify their bank with key cheque details (date, payee, amount, cheque number) before clearing.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

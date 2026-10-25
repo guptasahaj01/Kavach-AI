@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-033
+TOPIC: Immediate Payment Service (IMPS) Rules
+CATEGORY: IMPS_IMMEDIATE
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are the standard charges for outward IMPS transactions?
+
+ANSWER:
+Unlike online NEFT/RTGS, banks may levy nominal charges on outward IMPS transactions. Typically, transactions up to Rs. 1,000 are free; Rs. 1,001 to Rs. 10,000 attract Rs. 2.50 to Rs. 5; and amounts above Rs. 1,00,000 may incur up to Rs. 15 plus GST.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

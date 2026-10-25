@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-081
+TOPIC: Cheque Truncation System (CTS-2010) and Section 138 NI Act Rules
+CATEGORY: CHEQUE_CLEARING
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the Cheque Truncation System (CTS-2010)?
+
+ANSWER:
+CTS-2010 is an electronic cheque clearing mechanism where physical cheques are scanned into high-resolution electronic images and cleared electronically without physical movement between branches.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

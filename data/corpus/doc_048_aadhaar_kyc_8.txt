@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-048
+TOPIC: Aadhaar e-KYC and PAN Seeding Compliance
+CATEGORY: AADHAAR_KYC
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What happens if a customer fails to submit Re-KYC documents on time?
+
+ANSWER:
+Banks issue reminders over a 3 to 6-month period. If the customer fails to comply, partial freezing is imposed (debits disallowed), followed by full account freezing until valid KYC documents are verified.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

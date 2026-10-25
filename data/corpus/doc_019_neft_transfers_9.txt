@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-019
+TOPIC: National Electronic Funds Transfer (NEFT) Rules
+CATEGORY: NEFT_TRANSFERS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What is the turnaround time for an NEFT refund on failure?
+
+ANSWER:
+If funds cannot be credited to the beneficiary account for any technical reason, the destination bank must return the remittance to the originating bank within 2 hours of the batch settlement.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

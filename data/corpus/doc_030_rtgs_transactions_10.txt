@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-030
+TOPIC: Real Time Gross Settlement (RTGS) Protocols
+CATEGORY: RTGS_TRANSACTIONS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What security measures safeguard corporate RTGS gateways?
+
+ANSWER:
+Corporate RTGS utilizes Public Key Infrastructure (PKI), digital signature certificates (DSC Class 3), dual-authorization workflows (maker-checker controls), and IP-whitelisted VPN tunnels.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

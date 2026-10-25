@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-011
+TOPIC: National Electronic Funds Transfer (NEFT) Rules
+CATEGORY: NEFT_TRANSFERS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What are the operating hours and batch intervals for NEFT?
+
+ANSWER:
+NEFT operates 24 hours a day, 7 days a week, 365 days a year, including weekends and public holidays. Settlements are processed in half-hourly batches starting at 00:30 hours and ending at 00:00 hours throughout the day.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

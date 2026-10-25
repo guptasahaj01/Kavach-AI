@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-015
+TOPIC: National Electronic Funds Transfer (NEFT) Rules
+CATEGORY: NEFT_TRANSFERS
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What happens if incorrect IFSC or account number is provided in NEFT?
+
+ANSWER:
+NEFT relies on the destination account number provided by the remitter for crediting. If the account number does not exist, the destination bank automatically returns the funds to the remitter's bank within 2 hours of batch settlement.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

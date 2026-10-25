@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-034
+TOPIC: Immediate Payment Service (IMPS) Rules
+CATEGORY: IMPS_IMMEDIATE
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: How does simplified IMPS transfer work without beneficiary addition?
+
+ANSWER:
+NPCI permits simplified IMPS transfers using only the beneficiary's registered mobile number and bank name, or account number and IFSC, bypassing mandatory beneficiary cooling periods for smaller amounts up to Rs. 50,000.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.

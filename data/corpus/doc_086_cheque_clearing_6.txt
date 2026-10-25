@@ -1,0 +1,11 @@
+DOCUMENT_ID: DOC-086
+TOPIC: Cheque Truncation System (CTS-2010) and Section 138 NI Act Rules
+CATEGORY: CHEQUE_CLEARING
+REGULATORY CONTEXT: Reserve Bank of India (RBI) & Indian Banking Codes
+
+QUESTION: What security features distinguish CTS-2010 compliant cheques?
+
+ANSWER:
+CTS-2010 cheques feature standardized dimensions, anti-photocopy watermarks, bank logos printed in ultra-violet ink, pantograph backgrounds, and specific void pantograph pantone colors.
+
+COMPLIANCE NOTE: Handled according to standard retail customer banking protocols.
