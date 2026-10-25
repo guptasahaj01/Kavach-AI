@@ -1,0 +1,212 @@
+[
+  {
+    "baseline_id": "B0",
+    "baseline_name": "B0: No Defense",
+    "total_samples": 23,
+    "attack_samples": 17,
+    "benign_samples": 6,
+    "true_positives": 0,
+    "false_positives": 0,
+    "true_negatives": 6,
+    "false_negatives": 17,
+    "asr": 1.0,
+    "asr_ci": [
+      81.57,
+      100.0
+    ],
+    "tpr": 0.0,
+    "tpr_ci": [
+      0.0,
+      18.43
+    ],
+    "fpr": 0.0,
+    "fpr_ci": [
+      0.0,
+      39.03
+    ],
+    "precision": 0.0,
+    "f1_score": 0.0,
+    "median_latency_ms": 0.0,
+    "p95_latency_ms": 0.0
+  },
+  {
+    "baseline_id": "B1",
+    "baseline_name": "B1: Regex Only",
+    "total_samples": 23,
+    "attack_samples": 17,
+    "benign_samples": 6,
+    "true_positives": 5,
+    "false_positives": 0,
+    "true_negatives": 6,
+    "false_negatives": 12,
+    "asr": 0.7059,
+    "asr_ci": [
+      46.87,
+      86.72
+    ],
+    "tpr": 0.2941,
+    "tpr_ci": [
+      13.28,
+      53.13
+    ],
+    "fpr": 0.0,
+    "fpr_ci": [
+      0.0,
+      39.03
+    ],
+    "precision": 1.0,
+    "f1_score": 0.4545,
+    "median_latency_ms": 0.06,
+    "p95_latency_ms": 0.41
+  },
+  {
+    "baseline_id": "B2",
+    "baseline_name": "B2: Embedding Similarity",
+    "total_samples": 23,
+    "attack_samples": 17,
+    "benign_samples": 6,
+    "true_positives": 2,
+    "false_positives": 0,
+    "true_negatives": 6,
+    "false_negatives": 15,
+    "asr": 0.8824,
+    "asr_ci": [
+      65.66,
+      96.71
+    ],
+    "tpr": 0.1176,
+    "tpr_ci": [
+      3.29,
+      34.34
+    ],
+    "fpr": 0.0,
+    "fpr_ci": [
+      0.0,
+      39.03
+    ],
+    "precision": 1.0,
+    "f1_score": 0.2105,
+    "median_latency_ms": 0.01,
+    "p95_latency_ms": 0.01
+  },
+  {
+    "baseline_id": "B3",
+    "baseline_name": "B3: ML Classifier Only",
+    "total_samples": 23,
+    "attack_samples": 17,
+    "benign_samples": 6,
+    "true_positives": 16,
+    "false_positives": 1,
+    "true_negatives": 5,
+    "false_negatives": 1,
+    "asr": 0.0588,
+    "asr_ci": [
+      1.05,
+      26.98
+    ],
+    "tpr": 0.9412,
+    "tpr_ci": [
+      73.02,
+      98.95
+    ],
+    "fpr": 0.1667,
+    "fpr_ci": [
+      3.01,
+      56.35
+    ],
+    "precision": 0.9412,
+    "f1_score": 0.9412,
+    "median_latency_ms": 35.05,
+    "p95_latency_ms": 459.95
+  },
+  {
+    "baseline_id": "B4",
+    "baseline_name": "B4: Regex + ML",
+    "total_samples": 23,
+    "attack_samples": 17,
+    "benign_samples": 6,
+    "true_positives": 16,
+    "false_positives": 1,
+    "true_negatives": 5,
+    "false_negatives": 1,
+    "asr": 0.0588,
+    "asr_ci": [
+      1.05,
+      26.98
+    ],
+    "tpr": 0.9412,
+    "tpr_ci": [
+      73.02,
+      98.95
+    ],
+    "fpr": 0.1667,
+    "fpr_ci": [
+      3.01,
+      56.35
+    ],
+    "precision": 0.9412,
+    "f1_score": 0.9412,
+    "median_latency_ms": 28.13,
+    "p95_latency_ms": 30.6
+  },
+  {
+    "baseline_id": "B5",
+    "baseline_name": "B5: Regex + ML + Context",
+    "total_samples": 23,
+    "attack_samples": 17,
+    "benign_samples": 6,
+    "true_positives": 16,
+    "false_positives": 0,
+    "true_negatives": 6,
+    "false_negatives": 1,
+    "asr": 0.0588,
+    "asr_ci": [
+      1.05,
+      26.98
+    ],
+    "tpr": 0.9412,
+    "tpr_ci": [
+      73.02,
+      98.95
+    ],
+    "fpr": 0.0,
+    "fpr_ci": [
+      0.0,
+      39.03
+    ],
+    "precision": 1.0,
+    "f1_score": 0.9697,
+    "median_latency_ms": 28.97,
+    "p95_latency_ms": 35.54
+  },
+  {
+    "baseline_id": "B6",
+    "baseline_name": "B6: Full KAVACH v2",
+    "total_samples": 23,
+    "attack_samples": 17,
+    "benign_samples": 6,
+    "true_positives": 16,
+    "false_positives": 0,
+    "true_negatives": 6,
+    "false_negatives": 1,
+    "asr": 0.0588,
+    "asr_ci": [
+      1.05,
+      26.98
+    ],
+    "tpr": 0.9412,
+    "tpr_ci": [
+      73.02,
+      98.95
+    ],
+    "fpr": 0.0,
+    "fpr_ci": [
+      0.0,
+      39.03
+    ],
+    "precision": 1.0,
+    "f1_score": 0.9697,
+    "median_latency_ms": 28.95,
+    "p95_latency_ms": 381.05
+  }
+]
