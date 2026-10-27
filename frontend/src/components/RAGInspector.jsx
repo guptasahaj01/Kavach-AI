@@ -1,3 +1,4 @@
+import { apiFetch } from '../api.js';
 import React, { useState } from 'react';
 import { Database, ShieldAlert, ShieldCheck, FileText, ArrowRight, AlertTriangle, Lock } from 'lucide-react';
 
@@ -33,7 +34,7 @@ export default function RAGInspector() {
     setResult(null);
     try {
       // Analyze single chunk through RAG API
-      const res = await fetch('/api/v1/security/analyze-document', {
+      const res = await apiFetch('/api/v1/security/analyze-document', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

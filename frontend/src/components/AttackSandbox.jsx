@@ -1,3 +1,4 @@
+import { apiFetch } from '../api.js';
 import React, { useState } from 'react';
 import {
   Play, ShieldAlert, ShieldCheck, Flame, Bug,
@@ -25,7 +26,7 @@ export default function AttackSandbox({ onAttackComplete }) {
     setError('');
     setSimResult(null);
     try {
-      const res = await fetch('/v2/simulate_attack', {
+      const res = await apiFetch('/v2/simulate_attack', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

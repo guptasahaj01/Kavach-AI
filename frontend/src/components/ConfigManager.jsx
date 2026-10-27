@@ -1,3 +1,4 @@
+import { apiFetch } from '../api.js';
 import React, { useState, useEffect } from 'react';
 import { Settings, Cpu, Shield, Wrench, Lock, CheckCircle, Database } from 'lucide-react';
 
@@ -8,7 +9,7 @@ export default function ConfigManager() {
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/v1/config/public')
+    apiFetch('/api/v1/config/public')
       .then(res => { if (!res.ok) throw new Error('Configuration unavailable'); return res.json(); })
       .then(data => setConfig(data))
       .catch(err => setError(err.message))

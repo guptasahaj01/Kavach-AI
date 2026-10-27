@@ -1,3 +1,4 @@
+import { apiFetch } from '../api.js';
 import React, { useState, useEffect } from 'react';
 import {
   ShieldCheck, ShieldAlert, Activity, Lock, Eye,
@@ -15,7 +16,7 @@ export default function LiveMonitor({ metrics, recentAudit, onRefresh }) {
     if (!testPrompt.trim()) return;
     setTestLoading(true);
     try {
-      const res = await fetch('/v2/guard', {
+      const res = await apiFetch('/v2/guard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,10 +1,19 @@
+// Public build configuration only. Never place credentials in VITE_ variables.
+const apiBase = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '');
+export const backendMissing = import.meta.env.VITE_STATIC_HOST === 'true' && !apiBase;
+
+export async function apiFetch(path, options = {}) {
+  if (backendMissing) throw new Error('The public interface is available, but its backend has not been connected yet.');
+  return fetch(`${apiBase}${path}`, options);
+}
+
 export function authHeaders() {
   const token = sessionStorage.getItem('kavach.accessToken');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export async function apiRequest(url, options = {}) {
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     ...options,
     headers: { ...authHeaders(), ...options.headers },
   });

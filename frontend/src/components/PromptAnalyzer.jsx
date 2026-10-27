@@ -1,3 +1,4 @@
+import { apiFetch } from '../api.js';
 import React, { useState } from 'react';
 import { Shield, ShieldAlert, ShieldCheck, Cpu, Terminal, ArrowRight, Clock, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
@@ -49,7 +50,7 @@ export default function PromptAnalyzer({ onAnalyzed }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/v1/security/analyze', {
+      const res = await apiFetch('/api/v1/security/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

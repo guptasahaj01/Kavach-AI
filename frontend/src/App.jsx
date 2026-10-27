@@ -1,3 +1,4 @@
+import { backendMissing } from './api.js';
 import React, { useState, useRef, useEffect } from 'react';
 import SecurityOverview from './components/SecurityOverview.jsx';
 import PromptAnalyzer from './components/PromptAnalyzer.jsx';
@@ -35,6 +36,7 @@ export default function App() {
     <div className="workspace-shell">
       <header className="workspace-header"><span>Security console / <strong>{label}</strong></span><span className="environment-label">Local console</span></header>
       <main id="workspace" ref={main} tabIndex={-1} className="workspace">
+        <div hidden={!backendMissing} role="status" className="deployment-notice">Public interface preview. Connect the hosted backend to enable inspections, model generation, and tools.</div>
         <h1 className="sr-only">{label}</h1>
         {activeTab === 'assistant' && <ProtectedWorkflow />}
         {activeTab === 'overview' && <SecurityOverview onNavigate={navigate} />}

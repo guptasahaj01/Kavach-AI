@@ -116,3 +116,7 @@ npm run build
 ```
 
 See [setup](docs/SETUP.md), [architecture](docs/ARCHITECTURE.md), [security boundaries](docs/SECURITY_MODEL.md), [evaluation methodology](docs/BENCHMARK_METHODOLOGY.md), [testing](docs/TESTING.md), and [limitations](docs/LIMITATIONS.md).
+
+## Public website
+
+See [GitHub Pages and custom-domain setup](docs/GITHUB_PAGES.md). Pages hosts the interface; the Python/model backend requires a separate host.
