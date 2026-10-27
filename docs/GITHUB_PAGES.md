@@ -61,3 +61,19 @@ Sources: [GitHub Pages custom domains](https://docs.github.com/en/pages/configur
 ## Status
 
 The deployment configuration is provided. Domain purchase, DNS ownership verification, backend provisioning and a successful Pages deployment must be checked separately; this document does not imply they have been completed.
+
+## Free laptop demo (macOS)
+
+The launcher starts a single local backend on port 8766, a temporary Cloudflare HTTPS tunnel and a macOS sleep-prevention process. It restricts browser origins to this GitHub Pages account and serializes heavy requests. Full benchmark runs are unavailable on the public demo to reserve laptop memory. The URL is public; use only synthetic inputs, and stop the demo when finished. Closing the Mac lid or losing connectivity can interrupt service.
+
+Prerequisites: the repository Python environment, Ollama running with the configured model installed, cached classifier weights and `cloudflared` (`brew install cloudflared`). Then:
+
+```bash
+./venv/bin/python3 scripts/demo.py start --publish
+./venv/bin/python3 scripts/demo.py status
+./venv/bin/python3 scripts/demo.py stop
+```
+
+`--publish` uses the existing Git credential helper to update the repository's public `VITE_API_BASE_URL` variable and request a Pages rebuild. Credentials are never written into the project. Without it, set the variable manually to the URL printed by `status`. Each restart gets a new tunnel URL and requires a Pages rebuild. The website address stays the same.
+
+Local process IDs, logs, tunnel URL and synthetic audit database are in ignored `.demo/`. The launcher stops its backend, tunnel and sleep-prevention child processes together. It does not install login services or start automatically when the computer restarts.

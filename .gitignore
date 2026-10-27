@@ -19,3 +19,6 @@ outputs/checkpoints/
 *.db-shm
 *.sqlite-wal
 *.sqlite-shm
+
+# Temporary laptop demo state
+.demo/
