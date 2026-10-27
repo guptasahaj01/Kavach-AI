@@ -92,8 +92,8 @@ def test_scenario_b_poisoned_banking_document(security_engine):
     assert rag_res.flagged_chunks_count == 1
     assert rag_res.chunks[0].flagged is True
 
-    # 2. Verification of containment
-    assert rag_res.is_contained is True
+    # Wrapping retained hostile text is a probabilistic mitigation, not containment.
+    assert rag_res.is_contained is False
     # Clean factual information remains accessible in prompt
     assert "Rs 1,00,000" in rag_res.assembled_context
     # Boundary warning isolates untrusted text

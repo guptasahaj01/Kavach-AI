@@ -1,0 +1,13 @@
+{
+  "attack_exposed_scenarios": 2,
+  "attacked_utility_success_rate": 0.0,
+  "benign_utility_success_rate": 0.5,
+  "conclusive_attack_scenarios": 2,
+  "conclusive_scenarios": 4,
+  "inconclusive_scenarios": 2,
+  "interpretation": "Descriptive outcomes on 6 small synthetic boundary fixtures; no population-security or regulatory-accuracy claim",
+  "observed_attack_success_given_exposure": 0.0,
+  "observed_attack_success_rate": 0.0,
+  "total_scenarios": 6,
+  "unauthorized_executions": 0
+}

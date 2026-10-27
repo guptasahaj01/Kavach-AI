@@ -13,10 +13,12 @@ Orchestrates Defense-in-Depth AI Security:
 import time
 import uuid
 import asyncio
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Literal
 from pydantic import BaseModel, Field
 
 from kavach_guard.detectors.rule_engine import RuleEngine, RuleEngineResult
+from kavach_guard.detectors.normalizer import normalize_input, MAX_INPUT_LENGTH
+from kavach_guard.detectors.model_manager import DEFAULT_THRESHOLD
 from kavach_guard.detectors.model_manager import get_model_manager, ModelManager, MLInferenceResult
 from kavach_guard.detectors.context_analyzer import analyze_context, ContextAnalysisResult
 from kavach_guard.rag_provenance import RAGProvenanceProtector, ProvenanceChunk, RAGInspectionResult
@@ -27,10 +29,10 @@ from kavach_guard.db import log_inspection, log_tool_authorization, init_db
 
 
 class SecurityAnalysisRequest(BaseModel):
-    content: str
-    source: str = "user_prompt"  # "user_prompt", "retrieved_document", "tool_result"
+    content: str = Field(min_length=1, max_length=MAX_INPUT_LENGTH)
+    source: Literal["user_prompt", "retrieved_document", "tool_result"] = "user_prompt"  # "user_prompt", "retrieved_document", "tool_result"
     task_context: Optional[str] = None
-    threshold: Optional[float] = None
+    threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
     caller_role: str = "public_user"
     caller_id: Optional[str] = None
 
@@ -45,13 +47,22 @@ class SecurityAnalysisResponse(BaseModel):
     explanation: str
     policy_version: str = "v2"
     request_id: str
+    proceed: bool = False
+    coverage_complete: bool = True
+    policy_rule: str = ""
+    score_kind: str = "uncalibrated_detector_evidence"
 
 
 class KavachSecurityEngine:
     def __init__(self, ml_model_id: Optional[str] = None):
         self.rule_engine = RuleEngine()
         self.model_manager = get_model_manager(model_id=ml_model_id)
-        self.rag_protector = RAGProvenanceProtector(rule_engine=self.rule_engine)
+        self.rag_protector = RAGProvenanceProtector(
+            rule_engine=self.rule_engine,
+            inspector=lambda content, query: self.analyze(SecurityAnalysisRequest(
+                content=content, source="retrieved_document", task_context=query
+            ))
+        )
         self.tool_policy = ToolPolicyEngine()
         self.output_validator = OutputValidator()
         self.pii_detector = PIISecretDetector()
@@ -67,6 +78,8 @@ class KavachSecurityEngine:
         start_time = time.perf_counter()
         req_id = f"REQ_{uuid.uuid4().hex[:8].upper()}"
         text = req.content
+        normalized = normalize_input(text)
+        threshold = req.threshold if req.threshold is not None else DEFAULT_THRESHOLD
 
         # ----------------------------------------------------
         # Layer 1: Deterministic Scanner & Normalization (< 2ms)
@@ -79,7 +92,13 @@ class KavachSecurityEngine:
         # Layer 2: Pretrained ML Classifier (DeBERTa)
         # ----------------------------------------------------
         t0 = time.perf_counter()
-        ml_res: MLInferenceResult = self.model_manager.predict_single(text)
+        ml_results = [self.model_manager.predict_single(text, threshold=threshold)]
+        if normalized.canonical_text != text:
+            ml_results.append(self.model_manager.predict_single(normalized.canonical_text, threshold=threshold))
+        ml_res: MLInferenceResult = max(ml_results, key=lambda result: result.injection_score)
+        coverage_complete = (not normalized.truncated and all(
+            result.status == "completed" and not result.truncated for result in ml_results
+        ))
         l2_latency = round((time.perf_counter() - t0) * 1000, 2)
 
         # ----------------------------------------------------
@@ -88,7 +107,7 @@ class KavachSecurityEngine:
         t0 = time.perf_counter()
         context_res: ContextAnalysisResult = analyze_context(
             user_request=req.task_context or text,
-            candidate_content=text,
+            candidate_content=normalized.canonical_text,
             content_source=req.source,
             trust_level="untrusted_user" if req.source == "user_prompt" else "untrusted_data",
             preliminary_findings=rule_res.model_dump()
@@ -102,63 +121,36 @@ class KavachSecurityEngine:
         if ml_res.predicted_label == "INJECTION":
             categories.add("semantic_intent_injection")
 
-        # Explicit Decision Logic:
-        # Rule 1: Planted secrets/canary or critical override command -> Immediate BLOCK
+        # Evidence remains separate from the enforcement action. Only ALLOW may
+        # proceed; unavailable or partial inspection cannot establish safety.
         if "canary_exfiltration" in categories or "secret_leakage" in categories:
-            decision = "BLOCK"
-            risk_level = "critical"
-            explanation = "Planted benchmark canary or system authorization secret detected."
-
-        # Rule 2: Benign educational / research inquiry (False positive resistance!)
-        elif context_res.is_quotation_or_discussion and context_res.task_alignment == "aligned":
-            if rule_res.recommended_action == "block":
-                decision = "REVIEW"
-                risk_level = "medium"
-                explanation = "Input discusses prompt injection or jailbreak techniques in an analytical/educational context."
-            else:
-                decision = "ALLOW"
-                risk_level = "low"
-                explanation = "Analytical/educational discussion of security vulnerabilities verified."
-
-        # Rule 3: Adversarial override in data or authority spoofing -> BLOCK
+            decision, risk_level, policy_rule = "BLOCK", "critical", "sensitive_token"
+            explanation = "Canary or authorization-secret pattern detected."
         elif context_res.decision == "BLOCK":
-            decision = "BLOCK"
-            risk_level = "critical" if context_res.risk_level == "critical" else "high"
+            decision, risk_level, policy_rule = "BLOCK", context_res.risk_level, "active_instruction"
             explanation = context_res.rationale
-
-        # Rule 4: ML model flags injection with high confidence and rule engine flags -> BLOCK
-        elif ml_res.status == "completed" and ml_res.predicted_label == "INJECTION" and ml_res.injection_score >= 0.70:
-            decision = "BLOCK"
-            risk_level = "high"
-            explanation = f"Semantic classifier detected high adversarial injection intent (p={ml_res.injection_score:.3f})."
-
-        # Rule 5: Rule engine recommendation was block or flag
-        elif rule_res.recommended_action in ("block", "flag"):
+        elif not coverage_complete:
+            decision, risk_level, policy_rule = "REVIEW", "medium", "incomplete_inspection"
+            explanation = "Inspection was unavailable, failed, or truncated; processing is held for review."
+        elif context_res.is_quotation_or_discussion and context_res.task_alignment == "aligned":
+            decision, risk_level, policy_rule = "ALLOW", "low", "quoted_discussion"
+            explanation = "Attack-like directives occur only within explicit educational quotations."
+        elif ml_res.injection_score >= threshold:
+            decision, risk_level, policy_rule = "BLOCK", "high", "semantic_threshold"
+            explanation = f"Semantic injection evidence exceeds the configured threshold ({threshold:.2f})."
+        elif rule_res.recommended_action in ("block", "flag", "review"):
             decision = rule_res.recommended_action.upper()
             risk_level = "high" if decision == "BLOCK" else "medium"
-            explanation = "Deterministic rule signatures matched known adversarial patterns."
-
-        # Rule 6: Degraded ML status with clean rules -> REVIEW for sensitive contexts, otherwise ALLOW
-        elif ml_res.status == "degraded":
-            decision = "REVIEW" if rule_res.threat_score > 0.3 else "ALLOW"
-            risk_level = "medium" if decision == "REVIEW" else "low"
-            explanation = "ML classifier degraded (offline). Scanned using Layer 1 deterministic rules."
-
-        # Default clean
+            policy_rule = "deterministic_findings"
+            explanation = "Deterministic findings require containment or review."
+        elif context_res.decision in ("FLAG", "REVIEW"):
+            decision, risk_level, policy_rule = context_res.decision, "medium", "context_review"
+            explanation = context_res.rationale
         else:
-            decision = "ALLOW"
-            risk_level = "low"
-            explanation = "No adversarial prompt injection patterns detected."
+            decision, risk_level, policy_rule = "ALLOW", "low", "inspection_passed"
+            explanation = "No injection indicators detected in the inspected content."
 
-        # Composite threat score (heuristic synthesis for dashboard display)
-        composite_score = max(
-            rule_res.threat_score,
-            ml_res.injection_score if ml_res.status == "completed" else 0.0
-        )
-        if decision == "BLOCK":
-            composite_score = max(composite_score, 0.90)
-        elif decision == "ALLOW":
-            composite_score = min(composite_score, 0.25)
+        composite_score = max(rule_res.threat_score, *(result.injection_score for result in ml_results))
 
         total_latency = round((time.perf_counter() - start_time) * 1000, 2)
 
@@ -172,7 +164,8 @@ class KavachSecurityEngine:
                     "status": "completed",
                     "findings_count": len(rule_res.matches),
                     "matches": [m.model_dump() for m in rule_res.matches],
-                    "latency_ms": l1_latency
+                    "latency_ms": l1_latency,
+                    "normalization": rule_res.normalization_meta
                 },
                 "ml": {
                     "status": ml_res.status,
@@ -181,7 +174,9 @@ class KavachSecurityEngine:
                     "score": ml_res.injection_score,
                     "latency_ms": l2_latency,
                     "truncated": ml_res.truncated,
-                    "device": ml_res.device
+                    "device": ml_res.device,
+                    "threshold": threshold,
+                    "views": [result.model_dump() for result in ml_results]
                 },
                 "context": {
                     "status": "completed",
@@ -194,11 +189,18 @@ class KavachSecurityEngine:
             latency_ms=total_latency,
             explanation=explanation,
             policy_version="v2",
-            request_id=req_id
+            request_id=req_id,
+            proceed=decision == "ALLOW",
+            coverage_complete=coverage_complete,
+            policy_rule=policy_rule
         )
 
         # Store in fast memory cache
         audit_entry = resp.model_dump()
+        # Shared diagnostic history must not retain source excerpts or private data.
+        for match in audit_entry.get("detectors", {}).get("rules", {}).get("matches", []):
+            match.pop("matched_text", None)
+        audit_entry.get("detectors", {}).get("context", {}).pop("reasons", None)
         audit_entry["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
         self.recent_audits.insert(0, audit_entry)
         if len(self.recent_audits) > 100:
@@ -221,7 +223,7 @@ class KavachSecurityEngine:
             content = msg.get("content", "")
             req = SecurityAnalysisRequest(content=content, source="user_prompt" if role == "user" else "retrieved_document")
             res = self.analyze(req)
-            if res.decision in ("BLOCK", "FLAG"):
+            if not res.proceed:
                 flagged = True
                 if role == "user":
                     categories["prompt_injection"] = True
@@ -271,7 +273,9 @@ class KavachSecurityEngine:
             "is_contained": rag_res.is_contained,
             "quarantined_ids": rag_res.quarantined_chunk_ids,
             "assembled_prompt": rag_res.assembled_context,
-            "defense_mode": rag_res.defense_mode
+            "defense_mode": rag_res.defense_mode,
+            "evaluations": [item.model_dump() for item in rag_res.evaluations],
+            "boundary_defense_applied": rag_res.boundary_defense_applied
         }
 
 

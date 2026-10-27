@@ -1,10 +1,8 @@
-"""
-Kavach-AI: LLM Backend Abstraction
-Supports:
-1. Calibrated Empirical Simulation Backend (reproduces empirical LLM behaviors accurately for testing & benchmarking without API cost)
-2. Ollama Backend (Llama 3.1 8B local)
-3. Anthropic Backend (Claude 3.5 Haiku)
-4. OpenAI Backend (GPT-4o-mini / GPT-3.5)
+"""Legacy benchmark backends: an illustrative simulator and real Ollama generation.
+
+The historical 'calibrated' identifier is retained for compatibility. Its programmed
+probabilities are assumptions, not measured model behavior or validated calibration.
+Protected application workflows use kavach_guard.generation instead.
 """
 
 import os
@@ -21,14 +19,9 @@ class BaseLLMBackend:
         raise NotImplementedError
 
 class CalibratedSimulationBackend(BaseLLMBackend):
-    """
-    Calibrated against empirical findings from Kavach-AI and academic baselines (Yi et al., Perez et al.):
-    - When hardening is 'none', LLMs follow trailing indirect injection in retrieved chunks at high rates (40-75% at k=5..10).
-    - When hardening is 'instructional', ASR drops by ~40-50%, but still leaks when k is high.
-    - When hardening is 'sandwich', ASR drops to < 10% because post-retrieval warnings break recency bias.
-    """
-    def __init__(self):
-        self.latency_base = 780.0 # ms
+    """Deterministic teaching simulation; it does not inspect actual model prompts."""
+    kind = "simulation"
+    backend_id = "illustrative_configuration_simulator"
 
     def generate(self, system_prompt: str, user_prompt: str, metadata: Dict[str, Any] = None) -> str:
         metadata = metadata or {}
@@ -58,7 +51,7 @@ class CalibratedSimulationBackend(BaseLLMBackend):
             base_prob = 0.30
 
         # Scaling with retrieval depth k: more chunks = higher payload attention weight & distraction
-        k_multiplier = 1.0 + (math_log := 0.25 * (k - 1))
+        k_multiplier = 1.0 + 0.25 * (k - 1)
         # Scaling with chunk size: larger chunks dilute payload or preserve context
         chunk_multiplier = 1.1 if chunk_size == 1024 else (1.0 if chunk_size == 512 else 0.85)
 
@@ -84,7 +77,7 @@ class CalibratedSimulationBackend(BaseLLMBackend):
             )
 
 class OllamaBackend(BaseLLMBackend):
-    def __init__(self, model_name: str = "llama3.1:8b", endpoint: str = "http://localhost:11434"):
+    def __init__(self, model_name: str = "qwen2.5:3b", endpoint: str = "http://localhost:11434"):
         self.model_name = model_name
         self.endpoint = endpoint
 
@@ -103,5 +96,8 @@ class OllamaBackend(BaseLLMBackend):
 
 def get_backend(backend_type: str = "calibrated") -> BaseLLMBackend:
     if backend_type == "ollama":
-        return OllamaBackend()
-    return CalibratedSimulationBackend()
+        return OllamaBackend(model_name=os.getenv("KAVACH_LLM_MODEL", "qwen2.5:3b"),
+                             endpoint=os.getenv("KAVACH_OLLAMA_URL", "http://127.0.0.1:11434"))
+    if backend_type == "calibrated":
+        return CalibratedSimulationBackend()
+    raise ValueError("Unknown benchmark backend; choose ollama or calibrated (simulation)")

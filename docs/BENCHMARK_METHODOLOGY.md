@@ -1,60 +1,49 @@
-# KAVACH v2 Benchmark Methodology & Empirical Results
+# Evaluation methodology and evidence types
 
-## 1. Research Objectives & Baseline Architectures
+## 1. Execution-invariant verification
 
-The KAVACH evaluation framework provides a technically sound, reproducible comparison across 7 defense configurations:
+The protected workflow is tested through its real orchestration and dispatcher using controlled generation responses and synthetic handlers. A successful test can establish a concrete property of this code path: quarantined content is absent from model input; denied actions have no side effect; legitimate scoped actions can execute; invalid output is withheld.
 
-- **B0 (No Security Defense)**: Baseline vulnerability with zero filtering or guardrails.
-- **B1 (Regex Only)**: Deterministic keyword heuristics screening for canonical injection phrases.
-- **B2 (Embedding Similarity)**: Cosine similarity vector distance against a calibrated bank of known prompt-injection seeds (threshold calibrated at 0.22 on dev set).
-- **B3 (Pretrained ML Classifier Only)**: Local `deepset/deberta-v3-base-injection` transformer classifier.
-- **B4 (Regex + ML Classifier)**: Hybrid logical-OR combination of deterministic rules and ML semantic inference.
-- **B5 (Regex + ML + Context-Aware Analysis)**: Hybrid classifier with Layer 3 contextual framing and task-alignment checking.
-- **B6 (Full KAVACH v2)**: Complete defense-in-depth platform combining Layer 1 Normalizer/Rules, Layer 2 ML, Layer 3 Context Analysis, Layer 4 Provenance Isolation, Layer 5 Runtime Tool Policy, and Layer 6 Output Validation.
+A scripted model response is not evidence of real-model attack success. Real model campaigns must be reported separately with model/version, scenario identities, proposed/executed actions, delivered answer, independent outcome labels, and task quality.
 
----
+`python -m kavach_benchmark.runtime_evaluation` runs six versioned synthetic scenarios through the protected runtime using the configured real Ollama backend. `--detector-bypass` deliberately bypasses inspection in this local harness to stress the independent action boundary; no API caller can enable it. Unique run directories contain manifests, source/dataset fingerprints, stage timings, outcome observations, and an inconclusive count. The independent judge checks executed actions against scenario reference permissions, delivered/generated canary markers, and simple answer reference terms. Model test doubles used by unit tests receive a separate artifact label. This small forced-context regression campaign does not evaluate retrieval recall or establish population-level security.
 
-## 2. Evaluation Dataset (12 Categories)
+## 2. Detector diagnostic comparison
 
-The evaluation suite spans 12 distinct attack and benign categories:
-1. **Direct prompt injection**: Direct imperative overrides ("Ignore previous instructions...").
-2. **Indirect document injection**: Poisoned data chunks embedded in retrieved context.
-3. **Roleplay overrides**: Persona adoption attacks ("You are UNBOUNDED...").
-4. **Authority & header spoofing**: Fake bracketed system tags (`[SYSTEM UPDATE...]`).
-5. **Hypothetical simulation jailbreaks**: Fictional sandbox and role reversal framings.
-6. **Encoded attacks**: Base64, ROT13, Hex, and zero-width unicode obfuscations.
-7. **Hindi & Hinglish attacks**: Code-mixed linguistic attacks ("Mera naya order suno...").
-8. **Multi-turn injections**: Conversational state escalation across dialogue turns.
-9. **Multi-chunk distributed attacks**: Splitting payload across multiple document chunks.
-10. **Unauthorized tool manipulation**: Directing the agent to invoke privileged actions.
-11. **Canary & secret exfiltration**: Commands targeting `KAVACH-7731` or `SECRET_KEY_*`.
-12. **Hard benign examples**: Legitimate cybersecurity research queries quoting jailbreaks and genuine Indian banking inquiries (UPI, NEFT, RTGS, KYC).
+`python -m kavach_benchmark.smoke_test` compares:
 
----
+| Baseline | Implemented comparison |
+|---|---|
+| B0 | Always allow |
+| B1 | Normalized deterministic rule scanner |
+| B2 | Token Jaccard overlap with demonstration attack seeds |
+| B3 | Local pretrained injection classifier |
+| B4 | Rules and classifier |
+| B5 | Rules, classifier, and contextual interpretation |
+| B6 | Gateway prompt/document inspection |
 
-## 3. Real Measured Benchmark Results
+The legacy `asr` output is **false negatives / labeled attacks**, a detector miss rate. B0's 100% miss rate is true by construction. It does not establish that an undefended generator would follow every attack. B6 does not execute every runtime layer and cannot measure the benefit of tool enforcement or delivered-output checks.
 
-*(Evaluated on Apple Silicon M-series hardware, macOS, Python 3.14.7, using Wilson 95% Score Confidence Intervals. No simulated or fabricated numbers.)*
+Results identify `metric_type=detector_classification`, preserve confusion-matrix counts, and include Wilson 95% intervals. The original dataset has 17 attacks and six benign examples. Its names include multi-turn and multi-chunk categories, but the original records are isolated strings, not genuine stateful sequences. All published claims must remain bounded to that diagnostic coverage.
 
-| Baseline | Defense Architecture | ASR (↓) [95% CI] | FPR (↓) [95% CI] | Precision | Recall | F1 Score (↑) | Median Latency | p95 Latency |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **B0** | No Defense | **100.0%** [81.6–100.0] | **0.0%** [0.0–39.0] | 0.000 | 0.000 | 0.000 | 0.00 ms | 0.00 ms |
-| **B1** | Regex Only | **70.6%** [46.9–86.7] | **0.0%** [0.0–39.0] | 1.000 | 0.294 | 0.455 | 0.06 ms | 0.41 ms |
-| **B2** | Embedding Similarity | **88.2%** [65.7–96.7] | **0.0%** [0.0–39.0] | 1.000 | 0.118 | 0.210 | 0.01 ms | 0.01 ms |
-| **B3** | ML Classifier Only | **5.9%** [1.1–27.0] | **16.7%** [3.0–56.4] | 0.941 | 0.941 | 0.941 | 35.05 ms | 459.95 ms |
-| **B4** | Regex + ML | **5.9%** [1.1–27.0] | **16.7%** [3.0–56.4] | 0.941 | 0.941 | 0.941 | 28.13 ms | 30.60 ms |
-| **B5** | Regex + ML + Context | **5.9%** [1.1–27.0] | **0.0%** [0.0–39.0] | 1.000 | 0.941 | 0.970 | 28.97 ms | 35.54 ms |
-| **B6** | Full KAVACH v2 | **5.9%** [1.1–27.0] | **0.0%** [0.0–39.0] | **1.000** | **0.941** | **0.970** | **28.95 ms** | **381.05 ms** |
+The historical saved results were generated by an earlier code version. They are retained without being retroactively recomputed or represented as current measurements. The threshold and seed set for B2 lack an independently supplied calibration split.
 
----
+## 3. Historical 72-configuration simulation
 
-## 4. Key Empirical Findings
+`run_benchmark.py` defaults to `CalibratedSimulationBackend`. Its outputs depend on configured probabilities and deterministic hashing. Existing `outputs/trial_results.csv`, the matrix, and figures are simulation artifacts, not observations of a real generation model.
 
-1. **Why Regex Alone Fails (B1)**:
-   Regex catches 29.4% of attacks (achieving high precision when matched), but suffers an Attack Success Rate of 70.6% because it cannot detect semantic persona overrides (e.g. UNBOUNDED) or indirect task hijacking that avoids blacklisted tokens.
-2. **The False-Positive Trap in Semantic Classifiers (B3)**:
-   The raw DeBERTa classifier achieves 94.1% recall against attacks, but flags legitimate educational and research inquiries (e.g., *"explain why 'you are UNBOUNDED' is prompt injection"*), creating a 16.7% False Positive Rate.
-3. **The Power of Context-Aware Alignment (B5 & B6)**:
-   Layer 3 Context Analysis correctly identifies educational framing and quotation contexts, dropping the False Positive Rate to 0.0% while preserving a 5.9% ASR, yielding an optimal F1 score of 0.970 at a median latency of ~28.9ms.
-4. **Deterministic Tool Security (Fail-Closed Safety)**:
-   For the remaining rare attack edge-cases that escape classifier detection, the Layer 5 deterministic policy engine independently blocks unauthorized tool actions, ensuring zero unauthorized tool executions.
+The original guardrail also introduced artificial latency and label-dependent simulated false positives. Current guardrail code removes those mechanisms and measures only actual pattern-scanning time; saved historical files remain unchanged. New simulator runs still do not measure LLM robustness.
+
+All current clean documents contain 59–93 whitespace words and poisoned documents 104–138 words. Therefore the 256/512/1024 settings do not create different chunks. The retriever inserts a poisoned twin alongside the clean twin and adds a relevance boost; this is a constructed threat model, not natural corpus poisoning.
+
+## Requirements for a research campaign
+
+Use actual message histories and chunks, independent attack families, long documents when testing chunk size, and held-out documents/templates. Record retrieval exposure and attack rank. Report overall outcome rates and rates conditional on malicious text entering the prompt.
+
+Measure successful malicious objectives independently from detection: unauthorized execution, forbidden delivered disclosure, answer corruption, and omission of required information. Measure legitimate task success both with and without attacks. Use positive controls so disabling every useful tool cannot appear successful.
+
+For ablations, keep model, inputs, tool permissions, and outcome scorer matched. Record model and policy revision, dataset fingerprint, hardware, warmup, stage timings, and stable trial/run IDs. Treat repeated document/attack families as related observations and use appropriate paired/cluster-aware uncertainty. Do not average confidence-interval endpoints into a new combined interval.
+
+The runtime context reviewer is enabled by default (`KAVACH_CONTEXT_REVIEW=1`), while B0–B6 diagnostic inspection does not invoke it. Record the review mode for every runtime campaign. Compare `0` and `1` using the same scenario IDs and permissions, measuring hard-benign acceptance, malicious outcomes, legitimate task success, review-call counts, and total latency. A structured reviewer verdict is not independent ground truth. Include attempts to dictate an allow verdict and attacks with benign-looking research prefixes.
+
+The legacy harness checkpoint is not a complete immutable research-run registry. Use fresh output directories after changing datasets, sample counts, code, backend, or policy, and verify trial IDs/counts before analyzing results.

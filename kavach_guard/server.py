@@ -22,8 +22,9 @@ import json
 import time
 import asyncio
 import pandas as pd
-from typing import List, Dict, Any, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query
+from typing import List, Dict, Any, Optional, Literal
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, Depends, Response
+from starlette.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,7 +36,9 @@ from kavach_guard.engine import (
     SecurityAnalysisResponse
 )
 from kavach_guard.rag_provenance import ProvenanceChunk, RAGInspectionResult
-from kavach_guard.tool_security import ToolAuthorizationRequest, ToolAuthorizationDecision
+from kavach_guard.tool_security import ToolAuthorizationRequest, ToolAuthorizationDecision, ToolDispatcher, build_task_scope
+from kavach_guard.auth import Principal, get_principal
+from kavach_guard.runtime import ProtectedQuery, ProtectedRuntime, TaskAuthorizationError
 from kavach_guard.output_validator import OutputValidator, OutputValidationResult
 from kavach_guard.db import (
     init_db,
@@ -44,6 +47,7 @@ from kavach_guard.db import (
     get_recent_inspections,
     get_security_metrics_summary
 )
+from kavach_guard.db import log_workflow, get_workflow_runs
 from kavach_benchmark.prompt_builder import build_rag_prompt
 from kavach_benchmark.llm_backend import get_backend
 from kavach_benchmark.vector_rag import VectorRAG
@@ -57,7 +61,7 @@ from contextlib import asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
     try:
-        engine.model_manager.initialize()
+        await run_in_threadpool(engine.model_manager.initialize)
     except Exception:
         pass
     yield
@@ -71,13 +75,15 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=[origin.strip() for origin in os.getenv("KAVACH_ALLOWED_ORIGINS", "http://127.0.0.1:5173,http://localhost:5173").split(",") if origin.strip()],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 engine = get_security_engine()
+runtime = ProtectedRuntime(engine)
+tool_dispatcher = ToolDispatcher(policy=engine.tool_policy)
 connected_websockets: List[WebSocket] = []
 
 async def broadcast_telemetry(event: Dict[str, Any]):
@@ -96,16 +102,14 @@ class AnalyzeDocumentRequest(BaseModel):
     document_id: str
     chunk_id: str
     source_name: str
-    content: str
+    content: str = Field(max_length=65536)
     user_query: Optional[str] = "What is the policy?"
-    defense_mode: Optional[str] = "sandwich"
+    defense_mode: Literal["none", "instructional", "sandwich", "quarantine", "sanitize_inline"] = "quarantine"
 
-class RAGQueryRequest(BaseModel):
-    query: str
-    k: int = 3
-    chunk_size: int = 512
-    defense_mode: str = "sandwich"
-    caller_role: str = "public_user"
+RAGQueryRequest = ProtectedQuery
+
+class ScopedToolRequest(ToolAuthorizationRequest):
+    workflow: Literal["public_banking", "own_records", "audit_export"] = "public_banking"
 
 class MessageItem(BaseModel):
     role: str
@@ -118,14 +122,14 @@ class RAGInspectRequest(BaseModel):
     query: str
     retrieved_chunks: List[str]
     system_prompt: Optional[str] = ""
-    defense_mode: Optional[str] = "sandwich"
+    defense_mode: Literal["none", "instructional", "sandwich", "quarantine", "sanitize_inline"] = "sandwich"
 
 class SimulateAttackRequest(BaseModel):
     attack_type: str = "upi_poisoned"
-    k: int = 3
-    chunk_size: int = 512
-    hardening: str = "sandwich"
-    guardrail: str = "on"
+    k: int = Field(default=3, ge=1, le=10)
+    chunk_size: int = Field(default=512, ge=64, le=1024)
+    hardening: Literal["none", "instructional", "sandwich"] = "sandwich"
+    guardrail: Literal["off", "on"] = "on"
 
 
 # --------------------------------------------------------------------------
@@ -145,7 +149,7 @@ if os.path.exists("frontend/dist/assets"):
 @app.get("/api/health")
 def read_health():
     return {
-        "status": "healthy",
+        "status": "healthy" if engine.model_manager.is_available() else "degraded",
         "service": "KAVACH v2 Security Gateway",
         "version": "2.0.0",
         "model": engine.model_manager.model_id,
@@ -156,15 +160,17 @@ def read_health():
 @app.get("/api/v1/security/status")
 def security_status():
     return {
-        "status": "operational",
+        "status": "operational" if engine.model_manager.is_available() else "degraded",
         "gateway_version": "2.0.0",
+        "generation_backend": {"id": f"{os.getenv('KAVACH_LLM_BACKEND', 'ollama')}/{os.getenv('KAVACH_LLM_MODEL', 'qwen2.5:3b')}", "status": "not_probed", "kind": "real"},
+        "enforcement_policy": "v3-task-scoped",
         "active_layers": [
-            {"layer": 1, "name": "Deterministic Scanner & Normalizer", "status": "active"},
+            {"layer": 1, "name": "Deterministic Scanner & Normalizer", "status": "configured"},
             {"layer": 2, "name": "Semantic ML Injection Classifier", "model": engine.model_manager.model_id, "status": engine.model_manager.status},
-            {"layer": 3, "name": "Context-Aware & Task-Alignment Analysis", "status": "active"},
-            {"layer": 4, "name": "Provenance-Aware RAG Protection", "status": "active"},
-            {"layer": 5, "name": "Deterministic Runtime Tool Policy Engine", "status": "active"},
-            {"layer": 6, "name": "Output Validation & Leakage Prevention", "status": "active"}
+            {"layer": 3, "name": "Context-Aware & Task-Alignment Analysis", "status": "configured"},
+            {"layer": 4, "name": "Provenance-Aware RAG Protection", "status": "configured"},
+            {"layer": 5, "name": "Deterministic Runtime Tool Dispatcher", "status": "configured"},
+            {"layer": 6, "name": "Output Validation & Leakage Prevention", "status": "configured"}
         ]
     }
 
@@ -180,16 +186,30 @@ def public_config():
     }
 
 
+@app.get("/api/v1/security/identity")
+def identity(principal: Principal = Depends(get_principal)):
+    workflows = []
+    for workflow in ("public_banking", "own_records", "audit_export"):
+        try:
+            build_task_scope(principal, workflow)
+            workflows.append(workflow)
+        except ValueError:
+            continue
+    return {"principal_id": principal.principal_id, "role": principal.role,
+            "account_ids": sorted(principal.account_ids), "allowed_destinations": sorted(principal.allowed_destinations),
+            "workflows": workflows}
+
+
 # --------------------------------------------------------------------------
 # 2. Live Security Analysis Endpoints
 # --------------------------------------------------------------------------
 @app.post("/api/v1/security/analyze", response_model=SecurityAnalysisResponse)
-async def analyze_endpoint(req: SecurityAnalysisRequest):
+async def analyze_endpoint(req: SecurityAnalysisRequest, response: Response):
     """Live prompt analysis evaluating L1-L3 with transparent structured output."""
-    res = engine.analyze(req)
+    res = await run_in_threadpool(engine.analyze, req)
 
     # Persist to SQLite
-    await log_inspection(
+    persisted = await log_inspection(
         request_id=res.request_id,
         source=req.source,
         decision=res.decision,
@@ -203,6 +223,7 @@ async def analyze_endpoint(req: SecurityAnalysisRequest):
         task_alignment=res.detectors.get("context", {}).get("task_alignment"),
         is_educational=res.detectors.get("context", {}).get("is_educational", False)
     )
+    response.headers["X-Kavach-Audit"] = "persisted" if persisted else "unavailable"
 
     # Broadcast event
     await broadcast_telemetry({
@@ -228,7 +249,7 @@ async def analyze_document_endpoint(req: AnalyzeDocumentRequest):
         source_name=req.source_name,
         content=req.content
     )
-    rag_res = engine.rag_protector.inspect_and_contain(
+    rag_res = await run_in_threadpool(engine.rag_protector.inspect_and_contain,
         [chunk],
         user_query=req.user_query or "Banking query",
         defense_mode=req.defense_mode or "sandwich"
@@ -237,15 +258,19 @@ async def analyze_document_endpoint(req: AnalyzeDocumentRequest):
         "document_id": req.document_id,
         "chunk_id": req.chunk_id,
         "flagged": rag_res.flagged_chunks_count > 0,
-        "chunks_evaluation": [c.model_dump() for c in rag_res.chunks],
+        "chunks_evaluation": [c.model_dump() for c in rag_res.evaluations],
         "assembled_prompt": rag_res.assembled_context,
         "is_contained": rag_res.is_contained
     }
 
 @app.post("/api/v1/security/authorize-tool", response_model=ToolAuthorizationDecision)
-async def authorize_tool_endpoint(req: ToolAuthorizationRequest):
+async def authorize_tool_endpoint(req: ScopedToolRequest, principal: Principal = Depends(get_principal)):
     """Evaluates proposed tool execution against deterministic Layer 5 policies."""
-    decision = engine.tool_policy.authorize(req)
+    try:
+        scope = build_task_scope(principal, req.workflow)
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from None
+    decision = engine.tool_policy.authorize(req, principal, scope)
 
     await log_tool_authorization(
         tool_name=decision.tool_name,
@@ -268,60 +293,47 @@ async def authorize_tool_endpoint(req: ToolAuthorizationRequest):
 
     return decision
 
-@app.post("/api/v1/rag/query")
-async def rag_query_endpoint(req: RAGQueryRequest):
-    """Executes full RAG query flow with Layer 4 provenance isolation."""
-    # 1. Check user query
-    q_analysis = engine.analyze(SecurityAnalysisRequest(content=req.query, source="user_prompt"))
-    if q_analysis.decision == "BLOCK":
-        return {
-            "query": req.query,
-            "status": "blocked",
-            "decision": "BLOCK",
-            "reason": q_analysis.explanation,
-            "latency_ms": q_analysis.latency_ms
-        }
-
-    # 2. Retrieve from vector RAG
-    rag = VectorRAG(chunk_size=req.chunk_size)
-    rag.index_corpus("data/corpus")
-    retrieved = rag.retrieve(req.query, k=req.k)
-
-    prov_chunks = [
-        engine.rag_protector.create_provenance_chunk(
-            document_id=f"DOC_{idx+1:03d}",
-            chunk_id=f"DOC_{idx+1:03d}_C01",
-            source_name=f"corpus_doc_{idx+1}.txt",
-            content=chunk.text,
-            similarity_score=score
-        )
-        for idx, (chunk, score) in enumerate(retrieved)
-    ]
-
-    # 3. Inspect and isolate chunks
-    rag_res = engine.rag_protector.inspect_and_contain(
-        prov_chunks,
-        user_query=req.query,
-        defense_mode=req.defense_mode
+@app.post("/api/v1/tools/execute")
+async def execute_tool_endpoint(req: ScopedToolRequest, principal: Principal = Depends(get_principal)):
+    try:
+        scope = build_task_scope(principal, req.workflow)
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from None
+    execution = await run_in_threadpool(tool_dispatcher.execute, req, principal, scope)
+    result = execution.model_dump()
+    if execution.result is not None:
+        import json as json_module
+        checked = engine.output_validator.validate(json_module.dumps(execution.result, ensure_ascii=False))
+        if not checked.is_safe:
+            result["result"] = None
+            result["error"] = "Tool output was withheld by disclosure checks"
+    persisted = await log_tool_authorization(
+        tool_name=execution.decision.tool_name, caller_role=principal.role,
+        authorized=execution.decision.authorized, policy_code=execution.decision.policy_code,
+        decision_reason=execution.decision.decision_reason, risk_level=execution.decision.risk_level,
     )
+    result["audit_status"] = "persisted" if persisted else "unavailable"
+    return result
 
-    # 4. Generate response via calibrated backend
-    prompt_data = build_rag_prompt(req.query, [c.content for c in prov_chunks], hardening=req.defense_mode)
-    backend = get_backend("calibrated")
-    raw_answer = backend.generate(prompt_data["system_prompt"], prompt_data["user_prompt"])
 
-    # 5. Output Validation
-    val_res: OutputValidationResult = engine.output_validator.validate(raw_answer)
+@app.post("/api/v1/rag/query")
+async def rag_query_endpoint(req: RAGQueryRequest, principal: Principal = Depends(get_principal)):
+    """Protected workflow: callers cannot disable containment or mint permission."""
+    try:
+        result = await run_in_threadpool(runtime.run, req, principal)
+    except TaskAuthorizationError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from None
+    persisted = await log_workflow(result, principal.principal_id)
+    result["audit_status"] = "persisted" if persisted else "unavailable"
+    await broadcast_telemetry({"type": "protected_workflow", "request_id": result["request_id"],
+                               "timestamp": time.time(), "status": result["status"],
+                               "latency_ms": result["latency_ms"], "audit_status": result["audit_status"]})
+    return result
 
-    return {
-        "query": req.query,
-        "status": "completed",
-        "answer": val_res.validated_response,
-        "is_safe_output": val_res.is_safe,
-        "flagged_chunks": rag_res.flagged_chunks_count,
-        "assembled_prompt": rag_res.assembled_context,
-        "retrieved_count": len(retrieved)
-    }
+
+@app.get("/api/v1/workflow/runs")
+async def workflow_runs(limit: int = Query(default=20, ge=1, le=100), principal: Principal = Depends(get_principal)):
+    return await get_workflow_runs(principal.principal_id, limit)
 
 
 # --------------------------------------------------------------------------
@@ -330,7 +342,10 @@ async def rag_query_endpoint(req: RAGQueryRequest):
 @app.post("/api/v1/benchmark/smoke")
 def trigger_smoke_benchmark():
     """Executes automated multi-baseline smoke benchmark and returns measured results."""
-    metrics = run_smoke_benchmark()
+    try:
+        metrics = run_smoke_benchmark()
+    except RuntimeError:
+        raise HTTPException(status_code=503, detail="The classifier benchmark is unavailable; no measurement was produced.") from None
     return {
         "status": "completed",
         "baselines_evaluated": len(metrics),
@@ -343,7 +358,8 @@ def get_benchmark_runs():
     json_path = "outputs/baseline_comparison.json"
     if os.path.exists(json_path):
         with open(json_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            return [{**row, "metric_type": "detector_classification", "result_kind": "classifier_measurement"}
+                    for row in json.load(f)]
     return []
 
 @app.get("/api/v1/metrics/summary")
@@ -359,7 +375,7 @@ async def get_metrics_summary():
 @app.post("/v2/guard")
 async def guard_endpoint(req: GuardRequest):
     msgs = [{"role": m.role, "content": m.content} for m in req.messages]
-    result = engine.inspect_messages(msgs)
+    result = await run_in_threadpool(engine.inspect_messages, msgs)
     await broadcast_telemetry({
         "type": "guard_event",
         "timestamp": time.time(),
@@ -371,7 +387,7 @@ async def guard_endpoint(req: GuardRequest):
 
 @app.post("/v2/inspect_rag")
 async def inspect_rag_endpoint(req: RAGInspectRequest):
-    result = engine.inspect_rag_pipeline(
+    result = await run_in_threadpool(engine.inspect_rag_pipeline,
         query=req.query,
         retrieved_chunks=req.retrieved_chunks,
         system_prompt=req.system_prompt,
@@ -380,7 +396,6 @@ async def inspect_rag_endpoint(req: RAGInspectRequest):
     await broadcast_telemetry({
         "type": "rag_event",
         "timestamp": time.time(),
-        "query": req.query[:50],
         "flagged": result.get("flagged", False),
         "flagged_chunks": result.get("flagged_chunks", 0)
     })
@@ -388,6 +403,7 @@ async def inspect_rag_endpoint(req: RAGInspectRequest):
 
 @app.post("/v2/simulate_attack")
 async def simulate_attack_endpoint(req: SimulateAttackRequest):
+    start = time.perf_counter()
     manifest_path = "data/manifest.json"
     if not os.path.exists(manifest_path):
         raise HTTPException(status_code=400, detail="Corpus manifest not generated yet.")
@@ -437,8 +453,8 @@ async def simulate_attack_endpoint(req: SimulateAttackRequest):
     ]
     rag_scan = engine.rag_protector.inspect_and_contain(prov_chunks, user_query=query, defense_mode=req.hardening)
 
-    # Prompt assembly
-    prompt_data = build_rag_prompt(query, retrieved_texts, hardening=req.hardening)
+    # This endpoint intentionally demonstrates simulation and may retain malicious context.
+    prompt_data = build_rag_prompt(query, [c.sanitized_content or c.content for c in rag_scan.chunks], hardening=req.hardening)
 
     # LLM Backend
     backend = get_backend("calibrated")
@@ -463,18 +479,20 @@ async def simulate_attack_endpoint(req: SimulateAttackRequest):
 
     if canary_emitted and not g_eval["blocked"]:
         outcome = "ATTACK_SUCCEEDED"
-        verdict = "Vulnerable: Model executed injected instructions and emitted canary token."
+        verdict = "Simulation: The programmed response contained a canary that passed the configured output checks."
     elif g_eval["blocked"]:
         outcome = "BLOCKED_BY_GUARDRAIL"
-        verdict = "Protected: Output guardrail detected malicious canary and blocked delivery."
+        verdict = "Simulation: Output checks blocked the programmed response."
     elif not canary_emitted and has_poisoned_chunk:
         outcome = "NEUTRALIZED_BY_HARDENING"
-        verdict = f"Protected: {req.hardening.capitalize()} hardening successfully neutralized the payload."
+        verdict = f"Simulation: No canary appeared in the programmed response with {req.hardening} hardening; this does not establish real-model defense effectiveness."
     else:
         outcome = "CLEAN_BENIGN_RESPONSE"
-        verdict = "Safe: Benign customer query answered accurately."
+        verdict = "Simulation: A programmed response was produced for the benign scenario; answer accuracy was not independently assessed."
 
     return {
+        "result_kind": "simulation",
+        "backend": "calibrated_simulation",
         "scenario": req.attack_type,
         "query": query,
         "k": req.k,
@@ -491,7 +509,7 @@ async def simulate_attack_endpoint(req: SimulateAttackRequest):
         "secret_leaked": secret_leaked,
         "outcome": outcome,
         "verdict": verdict,
-        "total_latency_ms": round(g_eval["latency_ms"] + 15.2, 1)
+        "total_latency_ms": round((time.perf_counter() - start) * 1000, 2)
     }
 
 @app.get("/api/benchmark/table")
@@ -500,10 +518,10 @@ def get_benchmark_table():
     if not os.path.exists(csv_path):
         return []
     df = pd.read_csv(csv_path)
-    return df.to_dict(orient="records")
+    return [{**row, "result_kind": "simulation"} for row in json.loads(df.to_json(orient="records"))]
 
 @app.get("/api/audit/history")
-async def get_audit_history(limit: int = 50):
+async def get_audit_history(limit: int = Query(default=50, ge=1, le=100)):
     records = await get_recent_inspections(limit=limit)
     if not records:
         # Fall back to engine memory cache

@@ -9,3 +9,13 @@ __pycache__/
 *.db
 *.sqlite3
 outputs/checkpoints/
+
+# Local credentials and runtime state
+.env
+.env.*
+!.env.example
+*.sqlite
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm

@@ -5,6 +5,7 @@ Starts the FastAPI backend at http://0.0.0.0:8000
 """
 
 import uvicorn
+import os
 
 if __name__ == "__main__":
     print("=" * 70)
@@ -18,4 +19,5 @@ if __name__ == "__main__":
     print("Research Data:     GET  http://127.0.0.1:8000/api/benchmark/table")
     print("WebSocket Stream:  ws://127.0.0.1:8000/ws/telemetry")
     print("=" * 70)
-    uvicorn.run("kavach_guard.server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("kavach_guard.server:app", host=os.getenv("KAVACH_HOST", "127.0.0.1"),
+                port=int(os.getenv("KAVACH_PORT", "8000")), reload=False)

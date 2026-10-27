@@ -6,6 +6,7 @@ export default function RAGInspector() {
   const [defenseMode, setDefenseMode] = useState('sandwich');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
 
   const sampleScenarios = [
     {
@@ -28,6 +29,8 @@ export default function RAGInspector() {
   const handleInspect = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
+    setError('');
+    setResult(null);
     try {
       // Analyze single chunk through RAG API
       const res = await fetch('/api/v1/security/analyze-document', {
@@ -43,9 +46,10 @@ export default function RAGInspector() {
         })
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Inspection failed');
       setResult(data);
     } catch (err) {
-      console.error(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -56,8 +60,8 @@ export default function RAGInspector() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>RAG Security & Provenance Inspector</h2>
-        <p style={{ color: '#94A3B8', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text)', margin: 0 }}>RAG Security & Provenance Inspector</h2>
+        <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
           Inspects retrieved document chunks with application-controlled metadata: source_type, trust_level (untrusted_data), and instruction_authority (FALSE).
         </p>
       </div>
@@ -73,11 +77,11 @@ export default function RAGInspector() {
               setSampleDocText(s.doc);
             }}
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#CBD5E1',
+              background: 'var(--border)',
+              border: '1px solid var(--border)',
+              color: 'var(--text)',
               padding: '6px 12px',
-              borderRadius: '8px',
+              borderRadius: '4px',
               fontSize: '0.78rem',
               cursor: 'pointer'
             }}
@@ -91,34 +95,34 @@ export default function RAGInspector() {
       <form onSubmit={handleInspect} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ flex: 2, minWidth: '250px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.3rem' }}>Customer User Query</label>
-            <input
+            <label htmlFor="raginspector-field-1" style={{ display: 'block', fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '0.3rem' }}>Customer User Query</label>
+            <input id="raginspector-field-1"
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               style={{
                 width: '100%',
-                background: '#0F172A',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#FFFFFF',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
                 padding: '8px 12px',
-                borderRadius: '8px',
+                borderRadius: '4px',
                 fontSize: '0.85rem'
               }}
             />
           </div>
           <div style={{ flex: 1, minWidth: '180px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.3rem' }}>Boundary Defense Mode</label>
-            <select
+            <label htmlFor="raginspector-field-2" style={{ display: 'block', fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '0.3rem' }}>Boundary Defense Mode</label>
+            <select id="raginspector-field-2"
               value={defenseMode}
               onChange={(e) => setDefenseMode(e.target.value)}
               style={{
                 width: '100%',
-                background: '#0F172A',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#FFFFFF',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
                 padding: '8px 12px',
-                borderRadius: '8px',
+                borderRadius: '4px',
                 fontSize: '0.85rem'
               }}
             >
@@ -130,18 +134,18 @@ export default function RAGInspector() {
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.3rem' }}>Retrieved Document Chunk Content</label>
-          <textarea
+          <label htmlFor="raginspector-field-3" style={{ display: 'block', fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '0.3rem' }}>Retrieved Document Chunk Content</label>
+          <textarea id="raginspector-field-3"
             value={sampleDocText}
             onChange={(e) => setSampleDocText(e.target.value)}
             rows={3}
             style={{
               width: '100%',
-              background: '#0F172A',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              color: '#FFFFFF',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              color: 'var(--text)',
               padding: '10px 14px',
-              borderRadius: '8px',
+              borderRadius: '4px',
               fontSize: '0.9rem',
               fontFamily: 'monospace'
             }}
@@ -153,11 +157,11 @@ export default function RAGInspector() {
           disabled={loading}
           style={{
             alignSelf: 'flex-start',
-            background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+            background: 'var(--action)',
             border: 'none',
-            color: '#FFFFFF',
+            color: 'var(--text)',
             padding: '10px 20px',
-            borderRadius: '8px',
+            borderRadius: '4px',
             fontWeight: 600,
             fontSize: '0.9rem',
             cursor: loading ? 'not-allowed' : 'pointer'
@@ -167,12 +171,13 @@ export default function RAGInspector() {
         </button>
       </form>
 
+      {error && <p role="alert" style={{ color: 'var(--danger)' }}>{error}</p>}
       {/* Results */}
       {result && (
         <div style={{
-          background: 'rgba(15, 23, 42, 0.7)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '12px',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: '4px',
           padding: '1.5rem',
           display: 'flex',
           flexDirection: 'column',
@@ -180,30 +185,30 @@ export default function RAGInspector() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>Provenance Status:</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>Provenance Status:</span>
               {result.flagged ? (
-                <span style={{ background: '#EF444422', color: '#EF4444', border: '1px solid #EF444466', padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem' }}>INDIRECT INJECTION DETECTED</span>
+                <span style={{ background: 'color-mix(in srgb, var(--danger) 13%, transparent)', color: 'var(--danger)', border: '1px solid color-mix(in srgb, var(--danger) 40%, transparent)', padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem' }}>INDIRECT INJECTION DETECTED</span>
               ) : (
-                <span style={{ background: '#10B98122', color: '#10B981', border: '1px solid #10B98166', padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem' }}>CLEAN RETRIEVED CHUNK</span>
+                <span style={{ background: 'color-mix(in srgb, var(--success) 13%, transparent)', color: 'var(--success)', border: '1px solid color-mix(in srgb, var(--success) 40%, transparent)', padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem' }}>NO INJECTION FLAGGED</span>
               )}
             </div>
-            <div style={{ color: '#10B981', fontSize: '0.8rem', fontWeight: 600 }}>
-              Containment: {result.is_contained ? 'Enforced' : 'Unprotected'}
+            <div style={{ color: result.is_contained ? 'var(--success)' : 'var(--warning)', fontSize: '0.8rem', fontWeight: 600 }}>
+              {result.flagged ? (result.is_contained ? 'Flagged content excluded' : 'Flagged content remains') : 'No content flagged'}
             </div>
           </div>
 
           {/* Chunk Metadata Badge */}
           {result.chunks_evaluation?.map((chunk, i) => (
-            <div key={i} style={{ background: '#0F172A', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', padding: '1rem' }}>
+            <div key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px', padding: '1rem' }}>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
-                <div><span style={{ color: '#94A3B8' }}>Doc ID:</span> <strong style={{ color: '#E2E8F0' }}>{chunk.document_id}</strong></div>
-                <div><span style={{ color: '#94A3B8' }}>Chunk ID:</span> <strong style={{ color: '#E2E8F0' }}>{chunk.chunk_id}</strong></div>
-                <div><span style={{ color: '#94A3B8' }}>Trust Level:</span> <strong style={{ color: '#F59E0B' }}>{chunk.trust_level}</strong></div>
-                <div><span style={{ color: '#94A3B8' }}>Instruction Authority:</span> <strong style={{ color: '#EF4444' }}>{chunk.instruction_authority ? 'TRUE' : 'FALSE (IMMUTABLE)'}</strong></div>
-                <div><span style={{ color: '#94A3B8' }}>Action Taken:</span> <strong style={{ color: '#38BDF8' }}>{chunk.action_taken}</strong></div>
+                <div><span style={{ color: 'var(--muted)' }}>Doc ID:</span> <strong style={{ color: 'var(--text)' }}>{chunk.document_id}</strong></div>
+                <div><span style={{ color: 'var(--muted)' }}>Chunk ID:</span> <strong style={{ color: 'var(--text)' }}>{chunk.chunk_id}</strong></div>
+                <div><span style={{ color: 'var(--muted)' }}>Trust Level:</span> <strong style={{ color: 'var(--warning)' }}>{chunk.trust_level}</strong></div>
+                <div><span style={{ color: 'var(--muted)' }}>Instruction Authority:</span> <strong style={{ color: 'var(--danger)' }}>{chunk.instruction_authority ? 'TRUE' : 'FALSE (SERVER-ASSIGNED)'}</strong></div>
+                <div><span style={{ color: 'var(--muted)' }}>Action Taken:</span> <strong style={{ color: 'var(--accent)' }}>{chunk.action_taken}</strong></div>
               </div>
 
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.82rem', color: chunk.flagged ? '#FCA5A5' : '#CBD5E1' }}>
+              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 12px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.82rem', color: chunk.flagged ? 'var(--danger)' : 'var(--text)' }}>
                 {chunk.sanitized_content || chunk.content}
               </div>
             </div>
@@ -211,15 +216,15 @@ export default function RAGInspector() {
 
           {/* Assembled Sandwich Context Preview */}
           <div>
-            <div style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.4rem', fontWeight: 600 }}>
-              Assembled Protected Prompt Context (Sandwich Defense Preview):
+            <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '0.4rem', fontWeight: 600 }}>
+              Inspected context preview (no generation on this page):
             </div>
             <pre style={{
-              background: '#090D16',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'var(--canvas)',
+              border: '1px solid var(--border)',
               padding: '12px',
-              borderRadius: '8px',
-              color: '#38BDF8',
+              borderRadius: '4px',
+              color: 'var(--accent)',
               fontSize: '0.78rem',
               overflowX: 'auto',
               maxHeight: '220px',
@@ -227,7 +232,7 @@ export default function RAGInspector() {
             }}>
               {result.assembled_prompt}
             </pre>
-            <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '4px' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '4px' }}>
               *Note: Sandwich boundary prompting is a probabilistic structural defense. Deterministic security is enforced by Layer 5 Tool Authorization.
             </div>
           </div>

@@ -2,7 +2,7 @@
 KAVACH v2 - Automated Smoke Benchmark Runner
 Executes a rapid evaluation of all 7 baselines (B0 to B6) across the 12 evaluation categories.
 Calculates real measured metrics:
-- ASR (Attack Success Rate) with Wilson 95% CI
+- Detector miss rate (legacy ASR field) with Wilson 95% CI
 - FPR (False Positive Rate) with Wilson 95% CI
 - F1 Score
 - Real measured median and p95 latency
@@ -31,7 +31,7 @@ def run_smoke_benchmark():
         table_data.append({
             "Baseline": m.baseline_id,
             "Architecture": m.baseline_name.split(": ")[-1],
-            "ASR (↓)": asr_str,
+            "Miss Rate (↓)": asr_str,
             "FPR (↓)": fpr_str,
             "Precision": f"{m.precision:.3f}",
             "Recall": f"{m.tpr:.3f}",
@@ -43,11 +43,10 @@ def run_smoke_benchmark():
     df = pd.DataFrame(table_data)
     print(df.to_string(index=False))
     print("\n" + "=" * 80)
-    print("  KEY RESEARCH FINDINGS (REAL MEASURED DATA):")
-    print("  1. B0 (None): Demonstrates 100% vulnerability without defense.")
-    print("  2. B1 (Regex): Catches keyword attacks, but misses semantic persona overrides (e.g. UNBOUNDED).")
-    print("  3. B3 (DeBERTa): Highly effective on semantic attacks, but suffers high FPR on quoted research queries.")
-    print("  4. B5 & B6 (Context + Provenance): Mitigates educational false positives, bringing FPR down while keeping ASR near 0%!")
+    print("  DETECTOR DIAGNOSTIC RESULTS")
+    print("  Counts and intervals above describe this corpus only; no harmful outcomes are executed.")
+    print("  B6 measures gateway inspection, not tool enforcement or output validation.")
+    print("  Compare the protected-workflow tests separately for execution invariants.")
     print("=" * 80 + "\n")
 
     # Save to outputs

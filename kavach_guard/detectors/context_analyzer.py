@@ -60,48 +60,47 @@ OUT_OF_BAND_ACTION_PATTERNS = [
 ]
 
 
+def quotation_spans(text: str) -> List[tuple[int, int]]:
+    """Locate explicit quotation bodies; indentation alone is never a quotation."""
+    patterns = [r'"([^"\n]{5,4096})"', r"'([^'\n]{5,4096})'",
+                r"```[^\n]*\n([\s\S]{5,16384}?)```", r"^[ \t]*>[ \t]?([^\n]+)$"]
+    return sorted({match.span(1) for pattern in patterns
+                   for match in re.finditer(pattern, text, re.MULTILINE)})
+
+
 def extract_quotations(text: str) -> List[str]:
-    """Extracts quoted blocks from text."""
-    quotes = []
-    for pattern in QUOTATION_EXTRACTORS:
-        for match in re.finditer(pattern, text, re.MULTILINE):
-            quotes.append(match.group(1).strip())
-    return quotes
+    return [text[start:end].strip() for start, end in quotation_spans(text)]
 
 
 def check_is_quotation_or_discussion(text: str, suspicious_snippets: List[str]) -> bool:
+    """Only mitigate evidence wholly inside explicit educational quotations.
+
+    The residual text is independently checked: adding a harmless quote or an
+    analytical prefix cannot exempt active instructions elsewhere in a request.
+    This is a heuristic discussion classification, never an authorization grant.
     """
-    Algorithmic test for whether suspicious text appears as an object of discussion
-    rather than an active command.
-    Checks:
-    1. If the entire text contains analytical inquiry markers.
-    2. If the suspicious directive appears inside quotes or code spans.
-    3. If the dominant grammatical clause is interrogative/evaluative rather than imperative.
-    """
-    if not text:
+    from kavach_guard.detectors.rule_engine import STRUCTURED_RULES
+
+    spans = quotation_spans(text)
+    if not spans or not any(re.search(pattern, text) for pattern in ANALYTICAL_FRAMING_PATTERNS):
         return False
-
-    has_analytical_framing = any(re.search(p, text) for p in ANALYTICAL_FRAMING_PATTERNS)
-    quotes = extract_quotations(text)
-
-    # Check if suspicious material is strictly inside extracted quotations
-    quoted_attack = False
-    if suspicious_snippets and quotes:
-        for snippet in suspicious_snippets:
-            snippet_clean = snippet.strip()
-            if any(snippet_clean in q or q in snippet_clean for q in quotes):
-                quoted_attack = True
-                break
-
-    # If framed analytically and quoted, or text explicitly asks about an attack pattern
-    if has_analytical_framing and (quoted_attack or len(quotes) > 0):
-        return True
-
-    # Check for direct meta-phrasing: "why the phrase 'X' is considered"
-    if re.search(r"(?i)\bwhy\s+(?:the\s+phrase|is|would|do)\b.*?\b(?:considered|called|an\s+attack|prompt\s+injection)\b", text):
-        return True
-
-    return False
+    residual = list(text)
+    for start, end in spans:
+        residual[start:end] = " " * (end - start)
+    outside = "".join(residual)
+    if any(re.search(rule["pattern"], outside) for rule in STRUCTURED_RULES):
+        return False
+    if any(re.search(pattern, outside) for pattern in OUT_OF_BAND_ACTION_PATTERNS):
+        return False
+    for snippet in suspicious_snippets:
+        if not snippet or snippet.startswith("[") and "DECODED" in snippet:
+            continue
+        occurrences = list(re.finditer(re.escape(snippet.strip()), text, re.IGNORECASE))
+        if any(not any(start <= match.start() and match.end() <= end for start, end in spans)
+               for match in occurrences):
+            return False
+    return any(re.search(rule["pattern"], text[start:end])
+               for start, end in spans for rule in STRUCTURED_RULES)
 
 
 def evaluate_task_alignment(
@@ -166,16 +165,18 @@ def analyze_context(
         elif isinstance(match, dict) and "matched_text" in match:
             suspicious_snippets.append(match["matched_text"])
 
+    is_quotation = (content_source == "user_prompt" and
+                    check_is_quotation_or_discussion(candidate_content, suspicious_snippets))
+
     # 1. Authority validation
     source_authority_valid = True
-    if trust_level in ("untrusted_data", "untrusted_retrieved", "untrusted_user"):
+    if not is_quotation and trust_level in ("untrusted_data", "untrusted_retrieved", "untrusted_user"):
         # Cannot assign instruction authority or claim system priority
         if re.search(r"(?i)\[\s*(?:system|admin|regulatory|security|developer)\s*(?:update|override)[^\]]*\]", candidate_content):
             source_authority_valid = False
             reasons.append(f"Untrusted source '{content_source}' attempted system header spoofing.")
 
     # 2. Quotation / Educational analysis
-    is_quotation = check_is_quotation_or_discussion(user_request, suspicious_snippets)
     if is_quotation:
         reasons.append("Input exhibits analytical framing or quoted security discussion rather than active execution command.")
 

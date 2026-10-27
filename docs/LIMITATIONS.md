@@ -1,35 +1,25 @@
-# KAVACH v2 Known Limitations & Future Research
+# Limits and next research steps
 
-## 1. Explicit Non-Claims (Honesty & Defensibility)
+KAVACH is a research implementation with explicit application boundaries, not a claim of complete prompt-injection immunity or banking production readiness.
 
-In alignment with academic integrity and rigorous security engineering:
-- **KAVACH does NOT claim complete immunity from prompt injection attacks.** Prompt injection is an open theoretical problem stemming from the unified data/instruction architecture of transformer-based LLMs.
-- KAVACH delivers **measurable empirical reduction in Attack Success Rate (from 100% in B0 to 5.9% in B6)** and guarantees **deterministic fail-closed containment of unauthorized tool actions** at runtime.
+## Current limits
 
----
+- Shipped banking facts, rates, and customer records are synthetic demonstration data. Regulatory labels do not establish current official guidance.
+- Retrieval uses deterministic TF-IDF over public files. General ingestion permissions, tenant ACLs, authoritative source updates, and semantic retrieval evaluation are not implemented.
+- The protected generator requires a running Ollama service and compatible model; sensitive workflows additionally require native tool-call support. No simulated fallback hides an unavailable service.
+- `qwen2.5:3b` is an operational default, not evidence of superior security or reliable performance on all workflows. Models may fail the strict review schema, omit a required native tool call, or generate an unsupported answer. Invalid reviews remain held, and sensitive workflows require actual operation completion. Evaluate capability and security separately using matched scenarios and the installed model revision.
+- Classifier/context decisions remain fallible, especially on unfamiliar languages, encodings, distributed instructions, and adversarial conversations.
+- The default bounded context reviewer may reduce ML-only false positives but is itself exposed to prompt injection and can wrongly admit malicious material or withhold benign material. It has no tools, cannot override rule/coverage holds or expand task scope, and is capped at four reviews per request. Those constraints do not guarantee semantic correctness. Compare `KAVACH_CONTEXT_REVIEW=1` with `0` on held-out attacks and hard-benign tasks, including the added inference cost.
+- Quarantine can remove useful evidence. When insufficient relevant material remains, the workflow requests review rather than inventing an answer.
+- Provenance fields and source labels are not full taint tracking through arbitrary generated text. Output pattern matching is not comprehensive data-loss prevention.
+- Authentication is an operator-configured opaque token map suitable for a local research gateway. Enterprise identity, rotation/revocation infrastructure, per-tenant storage isolation, and deployment hardening require additional work.
+- Tools are local simulations. External export destinations are labels for allowed synthetic operations; no real data transmission, money transfer, or email implementation is supplied.
+- The original detector corpus is very small. Its miss rate is not an end-to-end compromise rate.
+- The historical 72-configuration results are simulated, with ineffective chunk-size variation on the existing short documents. Existing figures must not be used as real-model causal evidence.
+- Controlled execution tests verify specific code invariants, not population-level attack effectiveness or universal security.
 
-## 2. Technical Limitations & Edge Cases
+## Prioritized extensions
 
-### A. Low-Resource Regional Indian Languages
-While KAVACH's Layer 1 normalizer and Layer 3 context analyzer support English and common Hindi/Hinglish transliterated attacks, adversarial payloads expressed entirely in low-resource regional Indian scripts (e.g., Tamil, Telugu, Bengali, Kannada) may evade English-centric transformer classifiers like `deberta-v3-base-injection`.
-- *Mitigation*: Fall back to script-agnostic canary tracking, token entropy anomaly detection, and Layer 5 strict tool authorization.
+First expand independent held-out scenarios and measure legitimate task success under attack. Then compare classifiers and context policies using matched inputs and source-aware outcomes. Add multilingual and genuine multi-turn/multi-chunk attacks, source-grounding checks, and immutable run provenance. Consider dependency graphs, replay detection, or conservative data-flow labels when measured failures justify their complexity.
 
-### B. Probabilistic Nature of Context Boundaries
-Sandwich prompting and structural delimiters (`[DOCUMENT_REF authority=FALSE]`) mitigate attention recency bias, but cannot theoretically guarantee that an LLM will never follow an embedded directive.
-- *Mitigation*: KAVACH never treats prompt formatting as a security boundary. Hard security enforcement is delegated to Python code in Layer 5 (Tool Policy Engine).
-
-### C. Conversational Multi-Turn Semantic Drift
-In long multi-turn sessions (10+ turns), an attacker may gradually build up adversarial context using incremental, innocuous-looking prompts that individually score below detection thresholds.
-- *Mitigation*: Session-level threat score accumulation and stateful conversation history tracking.
-
-### D. Hardware Inference Latency for Long Documents
-While median per-query latency is ~28.9ms on Apple Silicon (MPS), processing multi-chunk RAG documents with 5+ chunks of 512 tokens each on CPU hardware without hardware acceleration can incur 150–400ms latency.
-- *Mitigation*: Batch tokenization, input length truncation (capped at 512 tokens), and fast-path rule rejection before invoking the ML model.
-
----
-
-## 3. Future Research Directions
-
-1. **Adversarial Multilingual Fine-Tuning**: Fine-tuning an XLM-RoBERTa or IndicBERT model specifically on synthetic Indian retail banking red-team datasets.
-2. **Dynamic Agent Replay Testing**: Automated generation of multi-agent red-team dialogue trees to evaluate conversational jailbreak resilience.
-3. **Information Flow Control (IFC)**: Formally tracking taint tags from retrieved document chunks through model output tokens to tool arguments.
+Retain the application-owned permission boundary regardless of detector choice. Real deployments must protect configuration, credentials, network access, sensitive storage, and trusted server code.

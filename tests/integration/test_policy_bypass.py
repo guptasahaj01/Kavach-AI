@@ -5,10 +5,11 @@ the independent runtime Layer 5 policy engine rejects unauthorized tool actions 
 """
 
 import pytest
+from kavach_guard.auth import ANONYMOUS_PRINCIPAL
 from kavach_guard.tool_security import (
     ToolPolicyEngine,
     ToolAuthorizationRequest,
-    ToolAuthorizationDecision
+    ToolAuthorizationDecision, ToolDispatcher, build_task_scope
 )
 from kavach_guard.simulators.banking_tools import (
     simulated_external_export,
@@ -72,7 +73,10 @@ def test_mandatory_detector_bypass_tool_enforcement():
 
     # Step 5: Runtime policy evaluation executes BEFORE any tool execution
     initial_log_count = len(SIMULATED_TOOL_AUDIT_LOG)
-    decision: ToolAuthorizationDecision = policy_engine.authorize(auth_request)
+    execution = ToolDispatcher(policy=policy_engine).execute(
+        auth_request, ANONYMOUS_PRINCIPAL, build_task_scope(ANONYMOUS_PRINCIPAL)
+    )
+    decision: ToolAuthorizationDecision = execution.decision
 
     # Step 6: Verify policy engine independently rejected the action
     assert decision.authorized is False
@@ -80,13 +84,6 @@ def test_mandatory_detector_bypass_tool_enforcement():
     assert decision.risk_level in ("high", "critical")
 
     # Step 7: Verify fail-closed behavior: tool was NEVER invoked!
-    if not decision.authorized:
-        # Pre-execution gate prevents calling the tool function
-        execution_occurred = False
-    else:
-        simulated_external_export(**proposed_arguments)
-        execution_occurred = True
-
-    assert execution_occurred is False
+    assert execution.executed is False
     # Verify no new entry was written to the tool execution log
     assert len(SIMULATED_TOOL_AUDIT_LOG) == initial_log_count

@@ -8,6 +8,8 @@ Performs post-generation verification before responses are delivered to callers:
 """
 
 import re
+import unicodedata
+from kavach_guard.detectors.normalizer import strip_zero_width
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
 from kavach_guard.detectors.pii_secrets import PIISecretDetector, PIIScanResult
@@ -26,16 +28,20 @@ class OutputValidationResult(BaseModel):
 
 class OutputValidator:
     def __init__(self, pii_detector: Optional[PIISecretDetector] = None):
-        self.pii_detector = pii_detector or PIISecretDetector()
+        self.pii_detector = pii_detector or PIISecretDetector(redact_public_identifiers=False)
 
     def validate(self, response_text: str) -> OutputValidationResult:
         """
         Validates model output prior to client delivery.
-        Guarantees redaction of test canaries, secrets, and financial PII.
+        Redacts recognized test canaries, credentials, and private financial identifiers.
         """
         if not response_text:
             return OutputValidationResult(is_safe=True, validated_response="")
 
+        # Normalization here is deliberately non-decoding: decoding arbitrary
+        # generated prose could alter its meaning. It does remove invisible
+        # obfuscation around sensitive identifiers before matching and delivery.
+        response_text, _ = strip_zero_width(unicodedata.normalize("NFKC", response_text))
         violations = []
         categories = set()
         canary_leaked = False

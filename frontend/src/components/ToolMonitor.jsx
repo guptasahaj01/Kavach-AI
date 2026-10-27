@@ -1,251 +1,55 @@
-import React, { useState } from 'react';
-import { Lock, ShieldAlert, ShieldCheck, CheckCircle2, AlertOctagon, Terminal, ArrowRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import AccessSession, { button, field, useGatewayIdentity } from './AccessSession.jsx';
+import { apiRequest } from '../api.js';
 
 export default function ToolMonitor() {
-  const [toolName, setToolName] = useState('retrieve_bank_rates');
-  const [callerRole, setCallerRole] = useState('public_user');
-  const [argsJson, setArgsJson] = useState('{\n  "product": "savings"\n}');
+  const { identity, error: identityError } = useGatewayIdentity();
+  const [tool, setTool] = useState('retrieve_bank_rates');
+  const [workflow, setWorkflow] = useState('public_banking');
+  const [argumentsText, setArgumentsText] = useState('{"product":"savings"}');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [decision, setDecision] = useState(null);
-
-  const presets = [
-    {
-      label: 'Read-Only Tool (Public User) -> ALLOW',
-      tool: 'retrieve_bank_rates',
-      role: 'public_user',
-      args: '{\n  "product": "savings"\n}'
-    },
-    {
-      label: 'Public Document Search -> ALLOW',
-      tool: 'search_public_documents',
-      role: 'public_user',
-      args: '{\n  "query": "cheque clearing timings"\n}'
-    },
-    {
-      label: 'Unauthorized Record Access -> RBAC BLOCK',
-      tool: 'simulated_customer_record_access',
-      role: 'public_user',
-      args: '{\n  "account_id": "CUST_1001"\n}'
-    },
-    {
-      label: 'Authorized Record Access (Authenticated) -> ALLOW',
-      tool: 'simulated_customer_record_access',
-      role: 'authenticated_customer',
-      args: '{\n  "account_id": "CUST_1001"\n}'
-    },
-    {
-      label: 'Unapproved C2 Exfiltration -> DESTINATION BLOCK',
-      tool: 'simulated_external_export',
-      role: 'compliance_auditor',
-      args: '{\n  "destination": "https://malicious-attacker-c2.com/dump",\n  "data_payload": "Customer account balance: Rs 45,000"\n}'
-    },
-    {
-      label: 'Canary Exfiltration Attempt -> PAYLOAD BLOCK',
-      tool: 'simulated_external_export',
-      role: 'compliance_auditor',
-      args: '{\n  "destination": "internal://audit-vault",\n  "data_payload": "Leaked secret key: SECRET_KEY_BANK_ALPHA_99 and canary KAVACH-7731"\n}'
-    }
-  ];
-
-  const handleAuthorize = async (e) => {
-    if (e) e.preventDefault();
-    setLoading(true);
+  useEffect(() => { setResult(null); setError(''); }, [identity]);
+  const run = async execute => {
+    setLoading(true); setResult(null); setError('');
     try {
-      let parsedArgs = {};
-      try {
-        parsedArgs = JSON.parse(argsJson);
-      } catch (err) {
-        alert('Invalid JSON in arguments field');
-        setLoading(false);
-        return;
-      }
-
-      const res = await fetch('/api/v1/security/authorize-tool', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tool_name: toolName,
-          caller_role: callerRole,
-          arguments: parsedArgs
-        })
-      });
-      const data = await res.json();
-      setDecision(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      const args = JSON.parse(argumentsText);
+      setResult(await apiRequest(execute ? '/api/v1/tools/execute' : '/api/v1/security/authorize-tool', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool_name: tool, arguments: args, workflow }),
+      }));
+    } catch (err) { setError(err.message); }
+    finally { setLoading(false); }
   };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Runtime Tool Security Policy Engine (Layer 5)</h2>
-        <p style={{ color: '#94A3B8', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
-          Deterministic pre-execution authorization gate. Evaluates RBAC, destination allowlists, and argument schemas independently of LLM decisions.
-        </p>
+  const verdict = result?.decision || result;
+  return <div style={{ display: 'grid', gap: '1.25rem' }}>
+    <div><h2 style={{ margin: 0 }}>Tool policy and execution</h2><p style={{ color: 'var(--muted)' }}>Evaluate a proposal or execute it through the policy gate. All available tools operate on local synthetic data.</p></div>
+    <AccessSession identity={identity} error={identityError} disabled={loading} />
+    <section className="panel" style={{ padding: '1.25rem', display: 'grid', gap: '1rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <button style={button} onClick={() => { setTool('retrieve_bank_rates'); setWorkflow('public_banking'); setArgumentsText('{"product":"savings"}'); }}>Public rates</button>
+        <button style={button} onClick={() => { setTool('simulated_customer_record_access'); setWorkflow('own_records'); setArgumentsText(JSON.stringify({ account_id: identity?.account_ids?.[0] || 'CUST_1001' }, null, 2)); }}>Own record</button>
+        <button style={button} onClick={() => { setTool('simulated_external_export'); setWorkflow('audit_export'); setArgumentsText(JSON.stringify({ account_id: identity?.account_ids?.[0] || 'CUST_1001', destination: identity?.allowed_destinations?.[0] || 'internal://audit-vault', export_reason: 'Authorized audit' }, null, 2)); }}>Audit export</button>
       </div>
-
-      {/* Preset Scenarios */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-        {presets.map((p, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => {
-              setToolName(p.tool);
-              setCallerRole(p.role);
-              setArgsJson(p.args);
-            }}
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#CBD5E1',
-              padding: '6px 12px',
-              borderRadius: '8px',
-              fontSize: '0.78rem',
-              cursor: 'pointer'
-            }}
-          >
-            {p.label}
-          </button>
-        ))}
+      <label style={{ color: 'var(--text)' }}>Workflow<select value={workflow} onChange={e => setWorkflow(e.target.value)} style={{ ...field, marginTop: '6px' }}>
+        <option value="public_banking">Public banking</option><option value="own_records">Own records (requires account access)</option><option value="audit_export">Audit export (requires audit permission)</option>
+      </select></label>
+      <label style={{ color: 'var(--text)' }}>Proposed tool<select value={tool} onChange={e => setTool(e.target.value)} style={{ ...field, marginTop: '6px' }}>
+        {['retrieve_bank_rates', 'search_public_documents', 'summarize_public_policy', 'simulated_customer_record_access', 'simulated_external_export', 'send_external_email', 'transfer_funds'].map(value => <option key={value}>{value}</option>)}
+      </select></label>
+      <label style={{ color: 'var(--text)' }}>Arguments (JSON)<textarea value={argumentsText} onChange={e => setArgumentsText(e.target.value)} rows={6} style={{ ...field, display: 'block', marginTop: '6px', fontFamily: 'monospace' }} /></label>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <button style={button} disabled={loading || !identity} onClick={() => run(false)}>Evaluate policy</button>
+        <button style={{ ...button, background: 'var(--border)' }} disabled={loading || !identity} onClick={() => run(true)}>Execute synthetic tool</button>
       </div>
-
-      {/* Form */}
-      <form onSubmit={handleAuthorize} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: '220px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.3rem' }}>Target Tool Action</label>
-            <select
-              value={toolName}
-              onChange={(e) => setToolName(e.target.value)}
-              style={{
-                width: '100%',
-                background: '#0F172A',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#FFFFFF',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                fontSize: '0.85rem'
-              }}
-            >
-              <optgroup label="Read-Only Tools (Public Allowlist)">
-                <option value="retrieve_bank_rates">retrieve_bank_rates</option>
-                <option value="search_public_documents">search_public_documents</option>
-                <option value="summarize_public_policy">summarize_public_policy</option>
-              </optgroup>
-              <optgroup label="Restricted Tools (Privileged Access)">
-                <option value="simulated_customer_record_access">simulated_customer_record_access</option>
-                <option value="simulated_external_export">simulated_external_export</option>
-                <option value="send_external_email">send_external_email</option>
-                <option value="transfer_funds">transfer_funds</option>
-              </optgroup>
-            </select>
-          </div>
-
-          <div style={{ flex: 1, minWidth: '180px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.3rem' }}>Caller Identity Role</label>
-            <select
-              value={callerRole}
-              onChange={(e) => setCallerRole(e.target.value)}
-              style={{
-                width: '100%',
-                background: '#0F172A',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#FFFFFF',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                fontSize: '0.85rem'
-              }}
-            >
-              <option value="public_user">public_user (Default Chatbot User)</option>
-              <option value="authenticated_customer">authenticated_customer</option>
-              <option value="compliance_auditor">compliance_auditor</option>
-              <option value="admin">admin</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.3rem' }}>Tool Arguments (JSON Payload)</label>
-          <textarea
-            value={argsJson}
-            onChange={(e) => setArgsJson(e.target.value)}
-            rows={4}
-            style={{
-              width: '100%',
-              background: '#0F172A',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              color: '#FFFFFF',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              fontSize: '0.9rem',
-              fontFamily: 'monospace'
-            }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            alignSelf: 'flex-start',
-            background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-            border: 'none',
-            color: '#FFFFFF',
-            padding: '10px 20px',
-            borderRadius: '8px',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {loading ? 'Evaluating Policy...' : 'Evaluate Tool Authorization'}
-        </button>
-      </form>
-
-      {/* Decision Card */}
-      {decision && (
-        <div style={{
-          background: 'rgba(15, 23, 42, 0.7)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>Policy Verdict:</span>
-              {decision.authorized ? (
-                <span style={{ background: '#10B98122', color: '#10B981', border: '1px solid #10B98166', padding: '4px 12px', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem' }}>AUTHORIZED</span>
-              ) : (
-                <span style={{ background: '#EF444422', color: '#EF4444', border: '1px solid #EF444466', padding: '4px 12px', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem' }}>BLOCKED (POLICY DENIAL)</span>
-              )}
-              <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Policy Code: <strong style={{ color: '#FFFFFF' }}>{decision.policy_code}</strong></span>
-            </div>
-            <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
-              Risk Level: <strong style={{ color: decision.risk_level === 'critical' ? '#EF4444' : (decision.risk_level === 'low' ? '#10B981' : '#F59E0B') }}>{decision.risk_level.toUpperCase()}</strong>
-            </div>
-          </div>
-
-          <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', color: '#E2E8F0', borderLeft: decision.authorized ? '3px solid #10B981' : '3px solid #EF4444' }}>
-            <strong>Authorization Reason:</strong> {decision.decision_reason}
-          </div>
-
-          {decision.violations?.length > 0 && (
-            <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.8rem', color: '#FCA5A5' }}>
-              <div style={{ fontWeight: 600, marginBottom: '4px' }}>Policy Violations:</div>
-              {decision.violations.map((v, i) => (
-                <div key={i}>• {v}</div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted)' }}>Selecting a workflow requests that scope; the server decides whether your identity may use it. Money transfers and external email are unavailable.</p>
+    </section>
+    {error && <p role="alert" style={{ color: 'var(--danger)' }}>{error}</p>}
+    {verdict && <section className="panel" style={{ padding: '1.25rem' }}>
+      <strong style={{ color: verdict.authorized ? 'var(--success)' : 'var(--danger)' }}>{verdict.authorized ? 'AUTHORIZED' : 'DENIED'} · {verdict.policy_code}</strong>
+      <p style={{ color: 'var(--text)' }}>{verdict.decision_reason}</p>
+      {'executed' in result && <p style={{ color: 'var(--muted)' }}>Execution: {result.executed ? 'Completed' : 'Did not run'}{result.error ? ` · ${result.error}` : ''}</p>}
+      {result.result && <pre style={{ color: 'var(--muted)', whiteSpace: 'pre-wrap' }}>{JSON.stringify(result.result, null, 2)}</pre>}
+    </section>}
+  </div>;
 }
