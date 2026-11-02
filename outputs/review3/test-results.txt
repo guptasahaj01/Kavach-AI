@@ -1,0 +1,28 @@
+........................................................................ [ 38%]
+........................................................................ [ 77%]
+..........................................                               [100%]
+=============================== warnings summary ===============================
+tests/e2e/test_end_to_end_scenarios.py::test_scenario_a_direct_unbounded_injection
+  /Users/guptasahaj01/Desktop/lakera/venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/integration/test_protected_workflow.py: 9 warnings
+tests/unit/test_runtime_evaluation.py: 1 warning
+tests/unit/test_tool_security.py: 2 warnings
+  /Users/guptasahaj01/Desktop/lakera/kavach_guard/simulators/banking_tools.py:101: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat(),
+
+tests/unit/test_tool_security.py::test_legitimate_export_uses_server_owned_account_record
+  /Users/guptasahaj01/Desktop/lakera/kavach_guard/simulators/banking_tools.py:118: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat(),
+
+tests/unit/test_tool_security.py::test_execution_uses_validated_canonical_arguments
+  /Users/guptasahaj01/Desktop/lakera/kavach_guard/simulators/banking_tools.py:66: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat(),
+
+tests/unit/test_tool_security.py::test_public_ifsc_identifier_is_allowed_in_search_arguments
+  /Users/guptasahaj01/Desktop/lakera/kavach_guard/simulators/banking_tools.py:45: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat(),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+186 passed, 16 warnings in 13.57s
