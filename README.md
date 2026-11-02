@@ -120,3 +120,7 @@ See [setup](docs/SETUP.md), [architecture](docs/ARCHITECTURE.md), [security boun
 ## Public website
 
 See [GitHub Pages and custom-domain setup](docs/GITHUB_PAGES.md). Pages hosts the interface; the Python/model backend requires a separate host.
+
+## Review 3 presentation and evidence
+
+[Group 10 presentation and reproduction steps](outputs/review3/README.md) include the editable deck, fresh detector results, screenshots, synthetic incident probes and limitations.
